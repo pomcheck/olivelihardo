@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="olivelihardo"
+run/main_scene="uid://5q1pfhihpxj6"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
