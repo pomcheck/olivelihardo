@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://enemy_tree.gd" id="1_enemy"]
+
+[sub_resource type="CapsuleShape3D" id="BodyShape"]
+radius = 0.5
+height = 2.4
+
+[sub_resource type="CapsuleShape3D" id="TouchShape"]
+radius = 1.2
+height = 3.0
+
+[sub_resource type="StandardMaterial3D" id="TrunkMaterial"]
+albedo_color = Color(0.31, 0.16, 0.08, 1)
+
+[sub_resource type="CylinderMesh" id="TrunkMesh"]
+material = SubResource("TrunkMaterial")
+top_radius = 0.28
+bottom_radius = 0.38
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="LeavesMaterial"]
+albedo_color = Color(0.18, 0.42, 0.12, 1)
+
+[sub_resource type="SphereMesh" id="LeavesMesh"]
+material = SubResource("LeavesMaterial")
+radius = 1.0
+height = 2.0
+
+[node name="EnemyTree" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_enemy")
+
+[node name="BodyCollision" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.2, 0)
+shape = SubResource("BodyShape")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Trunk" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 1, 0)
+mesh = SubResource("TrunkMesh")
+
+[node name="Leaves" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 2.15, 0)
+scale = Vector3(1.25, 1.1, 1.25)
+mesh = SubResource("LeavesMesh")
+
+[node name="TouchArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="TouchCollision" type="CollisionShape3D" parent="TouchArea"]
+position = Vector3(0, 1.2, 0)
+shape = SubResource("TouchShape")
+
