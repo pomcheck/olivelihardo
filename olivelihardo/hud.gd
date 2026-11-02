@@ -7,19 +7,21 @@ var _menu_subtitle: Label
 var _start_button: Button
 var _resume_button: Button
 var _restart_button: Button
+var _emote_overlay: ColorRect
+var _player: CharacterBody3D
 var _has_started: bool = false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_process_unhandled_input(true)
-	var player: Node = get_tree().get_first_node_in_group("player")
-	if player == null:
+	_player = get_tree().get_first_node_in_group("player") as CharacterBody3D
+	if _player == null:
 		push_error("HUD: Kein Spieler in der Gruppe 'player' gefunden.")
 	_build_interface()
-	if player != null:
-		player.connect("death_count_changed", Callable(self, "_on_death_count_changed"))
-		_on_death_count_changed(int(player.get("death_count")))
+	if _player != null:
+		_player.connect("death_count_changed", Callable(self, "_on_death_count_changed"))
+		_on_death_count_changed(int(_player.get("death_count")))
 	_show_menu(true)
 	get_tree().paused = true
 
@@ -90,6 +92,7 @@ func _build_interface() -> void:
 	_restart_button = _create_menu_button("RESTART SHOWROOM")
 	_restart_button.pressed.connect(_restart_game)
 	content.add_child(_restart_button)
+	_build_emote_wheel(hud_root)
 
 
 func _create_menu_button(button_text: String) -> Button:
@@ -111,19 +114,94 @@ func _create_menu_button(button_text: String) -> Button:
 	return button
 
 
+func _build_emote_wheel(hud_root: Control) -> void:
+	_emote_overlay = ColorRect.new()
+	_emote_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_emote_overlay.color = Color(0.025, 0.04, 0.04, 0.82)
+	_emote_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_emote_overlay.visible = false
+	hud_root.add_child(_emote_overlay)
+
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_emote_overlay.add_child(center)
+
+	var wheel: Control = Control.new()
+	wheel.custom_minimum_size = Vector2(480.0, 360.0)
+	center.add_child(wheel)
+
+	var wheel_panel: PanelContainer = PanelContainer.new()
+	wheel_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var wheel_style: StyleBoxFlat = StyleBoxFlat.new()
+	wheel_style.bg_color = Color(0.12, 0.17, 0.16, 0.98)
+	wheel_style.border_color = Color(0.78, 0.54, 0.26, 1.0)
+	wheel_style.set_border_width_all(2)
+	wheel_style.set_corner_radius_all(90)
+	wheel_panel.add_theme_stylebox_override("panel", wheel_style)
+	wheel.add_child(wheel_panel)
+
+	var title: Label = Label.new()
+	title.text = "EMOTES"
+	title.position = Vector2(175.0, 18.0)
+	title.size = Vector2(130.0, 40.0)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color(0.95, 0.78, 0.43, 1.0))
+	wheel.add_child(title)
+
+	var center_label: Label = Label.new()
+	center_label.text = "DANCE\nBREAK"
+	center_label.position = Vector2(180.0, 142.0)
+	center_label.size = Vector2(120.0, 64.0)
+	center_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	center_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	wheel.add_child(center_label)
+
+	_add_emote_button(wheel, "GROOVE", &"groove", Vector2(175.0, 65.0))
+	_add_emote_button(wheel, "SPIN", &"spin", Vector2(315.0, 145.0))
+	_add_emote_button(wheel, "WAVE", &"wave", Vector2(175.0, 245.0))
+	_add_emote_button(wheel, "BOUNCE", &"bounce", Vector2(35.0, 145.0))
+
+	var hint: Label = Label.new()
+	hint.text = "F / ESC  CLOSE"
+	hint.position = Vector2(160.0, 318.0)
+	hint.size = Vector2(160.0, 24.0)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 12)
+	wheel.add_child(hint)
+
+
+func _add_emote_button(wheel: Control, button_text: String, emote_name: StringName, button_position: Vector2) -> void:
+	var button: Button = _create_menu_button(button_text)
+	button.position = button_position
+	button.size = Vector2(130.0, 54.0)
+	button.pressed.connect(_select_emote.bind(emote_name))
+	wheel.add_child(button)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey:
 		return
 	var key_event: InputEventKey = event
-	if not key_event.pressed or key_event.echo or key_event.keycode != KEY_ESCAPE:
+	if not key_event.pressed or key_event.echo:
 		return
 
-	if _has_started and get_tree().paused:
-		_resume_game()
-	elif _has_started:
-		_show_menu(false)
-		get_tree().paused = true
-	get_viewport().set_input_as_handled()
+	if key_event.keycode == KEY_ESCAPE:
+		if _emote_overlay.visible:
+			_close_emote_wheel()
+		elif _has_started and get_tree().paused:
+			_resume_game()
+		elif _has_started:
+			_show_menu(false)
+			get_tree().paused = true
+		get_viewport().set_input_as_handled()
+	elif key_event.keycode == KEY_F and _has_started:
+		if _emote_overlay.visible:
+			_close_emote_wheel()
+		elif not get_tree().paused:
+			_emote_overlay.visible = true
+			get_tree().paused = true
+		get_viewport().set_input_as_handled()
 
 
 func _show_menu(is_start_menu: bool) -> void:
@@ -153,6 +231,17 @@ func _resume_game() -> void:
 func _restart_game() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
+
+
+func _select_emote(emote_name: StringName) -> void:
+	if _player != null:
+		_player.play_emote(emote_name)
+	_close_emote_wheel()
+
+
+func _close_emote_wheel() -> void:
+	_emote_overlay.visible = false
+	get_tree().paused = false
 
 
 func _on_death_count_changed(new_death_count: int) -> void:

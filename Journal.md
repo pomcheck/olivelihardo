@@ -72,3 +72,9 @@ Vorgeschlagener Commit: `fix: add safe respawns and detailed furniture store lev
 Die bisherigen Score-, Zeit-, Health-, Checkpoint- und Bestenlistenanzeigen aus dem HUD entfernt. Ein zentrierter Death Count, ein Startmenü beim ersten Laden sowie ein thematisches Escape-Pausenmenü mit echter Scene-Pause hinzugefügt. Arme und Beine des Players schwingen über Gelenkpivots mit einer prozeduralen Laufanimation.
 
 Vorgeschlagener Commit: `feat: add start pause menus death counter and player run animation`
+
+## 02-11-2026 - Emote-Rad und Schleichen
+
+F öffnet ein pausierendes Emote-Rad mit Groove-, Spin-, Wave- und Bounce-Tanz; die Auswahl spielt eine kurze Player-Animation ab. Linke Shift-Taste aktiviert den Schleichmodus mit reduziertem Tempo, abgesenkter Figur und kleinerer Kapsel.
+
+Vorgeschlagener Commit: `feat: add dance emote wheel and left-shift sneaking`
