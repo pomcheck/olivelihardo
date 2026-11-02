@@ -1,0 +1,80 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://chasing_chair.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="SeatMaterial"]
+albedo_color = Color(0.08, 0.24, 0.62, 1)
+
+[sub_resource type="StandardMaterial3D" id="FrameMaterial"]
+albedo_color = Color(0.12, 0.14, 0.17, 1)
+metallic = 0.55
+
+[sub_resource type="BoxMesh" id="SeatMesh"]
+material = SubResource("SeatMaterial")
+size = Vector3(0.9, 0.18, 0.85)
+
+[sub_resource type="BoxMesh" id="BackMesh"]
+material = SubResource("SeatMaterial")
+size = Vector3(0.9, 0.9, 0.16)
+
+[sub_resource type="CylinderMesh" id="LegMesh"]
+material = SubResource("FrameMaterial")
+top_radius = 0.045
+bottom_radius = 0.045
+height = 0.55
+
+[sub_resource type="CapsuleShape3D" id="BodyShape"]
+radius = 0.55
+height = 1.45
+
+[sub_resource type="SphereShape3D" id="TouchShape"]
+radius = 0.8
+
+[node name="ChasingChair" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_script")
+move_speed = 5.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.72, 0)
+shape = SubResource("BodyShape")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Seat" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.62, 0)
+mesh = SubResource("SeatMesh")
+
+[node name="Backrest" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 1.08, -0.34)
+mesh = SubResource("BackMesh")
+
+[node name="CentralPost" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.3, 0)
+scale = Vector3(0.5, 0.55, 0.5)
+mesh = SubResource("LegMesh")
+
+[node name="FrontLeftWheelLeg" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.3, 0.26, 0.3)
+mesh = SubResource("LegMesh")
+
+[node name="FrontRightWheelLeg" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.3, 0.26, 0.3)
+mesh = SubResource("LegMesh")
+
+[node name="BackLeftWheelLeg" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.3, 0.26, -0.3)
+mesh = SubResource("LegMesh")
+
+[node name="BackRightWheelLeg" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.3, 0.26, -0.3)
+mesh = SubResource("LegMesh")
+
+[node name="TouchArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TouchArea"]
+position = Vector3(0, 0.7, 0)
+shape = SubResource("TouchShape")

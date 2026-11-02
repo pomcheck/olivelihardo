@@ -48,3 +48,27 @@ Vorgeschlagener Commit: `feat: add multi-level terrain and distance-based tree a
 Den Laufzeit-Spawner aus der Hauptszene entfernt; alle Bäume sind nun direkt platziert. Zwei Bäume verfolgen den Spieler nach dem Aufwachen, zwei bleiben dauerhaft fixiert. Mehrere Fels-Meshes ergänzen die Start-, Rampen- und Plateau-Bereiche; ausserdem den Player-Root auf Y=0 korrigiert.
 
 Vorgeschlagener Commit: `feat: place tree enemies and add rock decorations`
+
+## 02-11-2026 - Sichtlinie, Hindernisvermeidung und Checkpoint
+
+Jagd-Bäume wachen nur innerhalb ihres Sichtkegels und bei freier Sicht auf. Beim Verfolgen umrunden sie Wände und meiden Abgründe; Treffer werden ebenfalls per Sichtlinie geprüft. Fixbäume sind ungefährlich und erhalten eine hellere Färbung. Die rote Flagge setzt nun einen Checkpoint, an dem der Spieler nach einem Treffer wieder erscheint.
+
+Vorgeschlagener Commit: `feat: add tree vision, obstacle avoidance, and checkpoint respawn`
+
+## 02-11-2026 - FurnitureEnemy OOP-Architektur
+
+Neue `FurnitureEnemy`-Basisklasse mit Zustandsmaschine, Spielererkennung, Aufwach-Tween, Gravitation, Kontakt und Cooldown. Fünf Subklassen implementieren Verfolgungsstuhl, fliegenden Sessel, expandierendes Sofa, wirbelnden Hocker und Klappstuhl-Falle; für alle gibt es eigene Mesh-/Kollisionsszenen. Die Möbel sind in der Hauptszene platziert.
+
+Vorgeschlagener Commit: `feat: implement FurnitureEnemy base class and 5 specialized attack subclasses`
+
+## 02-11-2026 - Respawn, Möbelhaus-Level und entschärfte Angriffe
+
+Treffer respawnen den Spieler am Checkpoint oder Start statt Game Over auszulösen. Möbel sind nur während aktiver Angriffe gefährlich, kehren danach zur Ausgangsposition zurück und müssen erneut getriggert werden; der Bürostuhl entschärft sich nach Annäherung auf etwa drei Meter. Die Abteilungen wurden mit 2,5-m-Wänden, Rampen, Betten, Regalen, Küchen- und Kassenmöbeln, Teppichen, Lampen und Beschriftungen ausgestaltet.
+
+Vorgeschlagener Commit: `fix: add safe respawns and detailed furniture store level`
+
+## 02-11-2026 - Start-/Pausenmenü und Laufanimation
+
+Die bisherigen Score-, Zeit-, Health-, Checkpoint- und Bestenlistenanzeigen aus dem HUD entfernt. Ein zentrierter Death Count, ein Startmenü beim ersten Laden sowie ein thematisches Escape-Pausenmenü mit echter Scene-Pause hinzugefügt. Arme und Beine des Players schwingen über Gelenkpivots mit einer prozeduralen Laufanimation.
+
+Vorgeschlagener Commit: `feat: add start pause menus death counter and player run animation`

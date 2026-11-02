@@ -1,33 +1,27 @@
 extends CanvasLayer
 
-var _player: CharacterBody3D
-var _score_label: Label
-var _health_label: Label
-var _damage_label: Label
-var _game_over_overlay: ColorRect
-var _final_score_label: Label
-var _name_input: LineEdit
-var _leaderboard_label: Label
-var _save_status_label: Label
-var _save_button: Button
-var _final_score: int = 0
-var _final_survival_time: float = 0.0
-var _score_saved: bool = false
+var _death_count_label: Label
+var _menu_overlay: ColorRect
+var _menu_title: Label
+var _menu_subtitle: Label
+var _start_button: Button
+var _resume_button: Button
+var _restart_button: Button
+var _has_started: bool = false
 
 
 func _ready() -> void:
-	_player = get_tree().get_first_node_in_group("player") as CharacterBody3D
-	if _player == null:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_process_unhandled_input(true)
+	var player: Node = get_tree().get_first_node_in_group("player")
+	if player == null:
 		push_error("HUD: Kein Spieler in der Gruppe 'player' gefunden.")
-		return
-
 	_build_interface()
-	_player.connect("score_updated", Callable(self, "_on_score_updated"))
-	_player.connect("damage_taken", Callable(self, "_on_damage_taken"))
-	_player.connect("health_changed", Callable(self, "_on_health_changed"))
-	_player.connect("player_died", Callable(self, "_on_player_died"))
-	_on_score_updated(int(_player.get("score")), float(_player.get("survival_time")))
-	_on_health_changed(int(_player.get("health")), int(_player.get("max_health")))
+	if player != null:
+		player.connect("death_count_changed", Callable(self, "_on_death_count_changed"))
+		_on_death_count_changed(int(player.get("death_count")))
+	_show_menu(true)
+	get_tree().paused = true
 
 
 func _build_interface() -> void:
@@ -36,141 +30,130 @@ func _build_interface() -> void:
 	hud_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(hud_root)
 
-	_score_label = Label.new()
-	_score_label.position = Vector2(24.0, 20.0)
-	_score_label.size = Vector2(360.0, 48.0)
-	_score_label.add_theme_font_size_override("font_size", 24)
-	hud_root.add_child(_score_label)
+	_death_count_label = Label.new()
+	_death_count_label.anchor_left = 0.5
+	_death_count_label.anchor_right = 0.5
+	_death_count_label.offset_left = -180.0
+	_death_count_label.offset_top = 22.0
+	_death_count_label.offset_right = 180.0
+	_death_count_label.offset_bottom = 68.0
+	_death_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_death_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_death_count_label.add_theme_font_size_override("font_size", 28)
+	_death_count_label.add_theme_color_override("font_color", Color(0.95, 0.78, 0.43, 1.0))
+	hud_root.add_child(_death_count_label)
 
-	_health_label = Label.new()
-	_health_label.position = Vector2(24.0, 58.0)
-	_health_label.size = Vector2(240.0, 28.0)
-	hud_root.add_child(_health_label)
-
-	_damage_label = Label.new()
-	_damage_label.position = Vector2(24.0, 86.0)
-	_damage_label.size = Vector2(320.0, 28.0)
-	_damage_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.25, 1.0))
-	hud_root.add_child(_damage_label)
-
-	_game_over_overlay = ColorRect.new()
-	_game_over_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_game_over_overlay.color = Color(0.02, 0.04, 0.03, 0.86)
-	_game_over_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	_game_over_overlay.visible = false
-	hud_root.add_child(_game_over_overlay)
+	_menu_overlay = ColorRect.new()
+	_menu_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_menu_overlay.color = Color(0.035, 0.055, 0.055, 0.9)
+	_menu_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	hud_root.add_child(_menu_overlay)
 
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_game_over_overlay.add_child(center)
+	_menu_overlay.add_child(center)
 
 	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(480.0, 0.0)
+	panel.custom_minimum_size = Vector2(420.0, 0.0)
 	var panel_style: StyleBoxFlat = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.12, 0.09, 1.0)
-	panel_style.border_color = Color(0.52, 0.68, 0.32, 1.0)
+	panel_style.bg_color = Color(0.12, 0.17, 0.16, 1.0)
+	panel_style.border_color = Color(0.78, 0.54, 0.26, 1.0)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(8)
-	panel_style.set_content_margin_all(22.0)
+	panel_style.set_content_margin_all(28.0)
 	panel.add_theme_stylebox_override("panel", panel_style)
 	center.add_child(panel)
 
 	var content: VBoxContainer = VBoxContainer.new()
-	content.add_theme_constant_override("separation", 10)
+	content.add_theme_constant_override("separation", 14)
 	panel.add_child(content)
 
-	var title: Label = Label.new()
-	title.text = "GAME OVER"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 30)
-	content.add_child(title)
+	_menu_title = Label.new()
+	_menu_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_menu_title.add_theme_font_size_override("font_size", 30)
+	_menu_title.add_theme_color_override("font_color", Color(0.95, 0.78, 0.43, 1.0))
+	content.add_child(_menu_title)
 
-	_final_score_label = Label.new()
-	_final_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_final_score_label.add_theme_font_size_override("font_size", 20)
-	content.add_child(_final_score_label)
+	_menu_subtitle = Label.new()
+	_menu_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_menu_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(_menu_subtitle)
 
-	_name_input = LineEdit.new()
-	_name_input.placeholder_text = "Spielername"
-	_name_input.max_length = 24
-	content.add_child(_name_input)
+	_start_button = _create_menu_button("ENTER THE SHOWROOM")
+	_start_button.pressed.connect(_start_game)
+	content.add_child(_start_button)
 
-	_save_button = Button.new()
-	_save_button.text = "Score speichern"
-	_save_button.pressed.connect(_on_save_button_pressed)
-	content.add_child(_save_button)
+	_resume_button = _create_menu_button("RESUME")
+	_resume_button.pressed.connect(_resume_game)
+	content.add_child(_resume_button)
 
-	_save_status_label = Label.new()
-	_save_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	content.add_child(_save_status_label)
-
-	var leaderboard_title: Label = Label.new()
-	leaderboard_title.text = "BESTENLISTE"
-	leaderboard_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	leaderboard_title.add_theme_font_size_override("font_size", 18)
-	content.add_child(leaderboard_title)
-
-	_leaderboard_label = Label.new()
-	_leaderboard_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_leaderboard_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content.add_child(_leaderboard_label)
-
-	var restart_button: Button = Button.new()
-	restart_button.text = "Neustart"
-	restart_button.pressed.connect(_on_restart_button_pressed)
-	content.add_child(restart_button)
+	_restart_button = _create_menu_button("RESTART SHOWROOM")
+	_restart_button.pressed.connect(_restart_game)
+	content.add_child(_restart_button)
 
 
-func _on_score_updated(current_score: int, current_survival_time: float) -> void:
-	_score_label.text = "Zeit: %d s    Score: %d" % [int(current_survival_time), current_score]
+func _create_menu_button(button_text: String) -> Button:
+	var button: Button = Button.new()
+	button.text = button_text
+	button.custom_minimum_size = Vector2(0.0, 48.0)
+	button.add_theme_color_override("font_color", Color(0.96, 0.91, 0.78, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
+	var button_style: StyleBoxFlat = StyleBoxFlat.new()
+	button_style.bg_color = Color(0.2, 0.33, 0.31, 1.0)
+	button_style.border_color = Color(0.48, 0.62, 0.53, 1.0)
+	button_style.set_border_width_all(1)
+	button_style.set_corner_radius_all(4)
+	button_style.set_content_margin_all(10.0)
+	button.add_theme_stylebox_override("normal", button_style)
+	var hover_style: StyleBoxFlat = button_style.duplicate() as StyleBoxFlat
+	hover_style.bg_color = Color(0.28, 0.44, 0.38, 1.0)
+	button.add_theme_stylebox_override("hover", hover_style)
+	return button
 
 
-func _on_damage_taken(amount: int) -> void:
-	_damage_label.text = "Getroffen! Schaden: %d" % amount
-
-
-func _on_health_changed(current_health: int, max_health: int) -> void:
-	_health_label.text = "Gesundheit: %d / %d" % [current_health, max_health]
-
-
-func _on_player_died(final_score: int, final_survival_time: float) -> void:
-	_final_score = final_score
-	_final_survival_time = final_survival_time
-	_score_saved = false
-	_final_score_label.text = "Erreichter Score: %d" % _final_score
-	_save_status_label.text = ""
-	_save_button.disabled = false
-	_game_over_overlay.visible = true
-	_refresh_leaderboard()
-
-
-func _on_save_button_pressed() -> void:
-	if _score_saved:
+func _unhandled_input(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
+	var key_event: InputEventKey = event
+	if not key_event.pressed or key_event.echo or key_event.keycode != KEY_ESCAPE:
 		return
 
-	DatabaseManager.save_score(_name_input.text, _final_score, _final_survival_time)
-	_score_saved = true
-	_save_button.disabled = true
-	_save_status_label.text = "Score gespeichert"
-	_refresh_leaderboard()
+	if _has_started and get_tree().paused:
+		_resume_game()
+	elif _has_started:
+		_show_menu(false)
+		get_tree().paused = true
+	get_viewport().set_input_as_handled()
 
 
-func _on_restart_button_pressed() -> void:
+func _show_menu(is_start_menu: bool) -> void:
+	_menu_overlay.visible = true
+	_start_button.visible = is_start_menu
+	_resume_button.visible = not is_start_menu
+	_restart_button.visible = not is_start_menu
+	if is_start_menu:
+		_menu_title.text = "FURNITURE HATES YOU"
+		_menu_subtitle.text = "A quiet trip through the showroom. Probably."
+	else:
+		_menu_title.text = "SHOWROOM PAUSED"
+		_menu_subtitle.text = "Everything is frozen. Take a breather."
+
+
+func _start_game() -> void:
+	_has_started = true
+	get_tree().paused = false
+	_menu_overlay.visible = false
+
+
+func _resume_game() -> void:
+	get_tree().paused = false
+	_menu_overlay.visible = false
+
+
+func _restart_game() -> void:
+	get_tree().paused = false
 	get_tree().reload_current_scene()
 
 
-func _refresh_leaderboard() -> void:
-	var top_scores: Array = DatabaseManager.get_top_scores(5)
-	if top_scores.is_empty():
-		_leaderboard_label.text = "Noch keine Einträge"
-		return
-
-	var lines: PackedStringArray = PackedStringArray()
-	for index: int in range(top_scores.size()):
-		var entry: Dictionary = top_scores[index]
-		lines.append("%d. %s  |  %d" % [
-			index + 1,
-			str(entry.get("player_name", "Unbekannt")),
-			int(entry.get("score", 0))
-		])
-	_leaderboard_label.text = "\n".join(lines)
+func _on_death_count_changed(new_death_count: int) -> void:
+	_death_count_label.text = "DEATHS  %02d" % new_death_count

@@ -1,0 +1,64 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://expanding_sofa.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="CushionMaterial"]
+albedo_color = Color(0.24, 0.43, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="WoodMaterial"]
+albedo_color = Color(0.29, 0.17, 0.1, 1)
+
+[sub_resource type="BoxMesh" id="FurnitureMesh"]
+material = SubResource("CushionMaterial")
+
+[sub_resource type="BoxShape3D" id="BodyShape"]
+size = Vector3(1.8, 1.0, 1.05)
+
+[sub_resource type="SphereShape3D" id="TouchShape"]
+radius = 1.0
+
+[node name="ExpandingSofa" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_script")
+move_speed = 1.2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.5, 0)
+shape = SubResource("BodyShape")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Seat" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.48, 0)
+scale = Vector3(1.8, 0.55, 1.0)
+mesh = SubResource("FurnitureMesh")
+
+[node name="Backrest" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.95, -0.38)
+scale = Vector3(1.8, 0.55, 0.25)
+mesh = SubResource("FurnitureMesh")
+
+[node name="LeftArm" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.82, 0.7, 0)
+scale = Vector3(0.2, 0.75, 1.0)
+mesh = SubResource("FurnitureMesh")
+
+[node name="RightArm" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.82, 0.7, 0)
+scale = Vector3(0.2, 0.75, 1.0)
+mesh = SubResource("FurnitureMesh")
+
+[node name="Legs" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.12, 0)
+scale = Vector3(1.5, 0.24, 0.8)
+mesh = SubResource("FurnitureMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="TouchArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TouchArea"]
+position = Vector3(0, 0.5, 0)
+shape = SubResource("TouchShape")

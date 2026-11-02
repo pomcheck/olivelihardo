@@ -1,0 +1,67 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://spinning_stool.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="SeatMaterial"]
+albedo_color = Color(0.83, 0.48, 0.12, 1)
+
+[sub_resource type="StandardMaterial3D" id="MetalMaterial"]
+albedo_color = Color(0.2, 0.23, 0.25, 1)
+metallic = 0.65
+
+[sub_resource type="CylinderMesh" id="SeatMesh"]
+material = SubResource("SeatMaterial")
+top_radius = 0.52
+bottom_radius = 0.52
+height = 0.18
+
+[sub_resource type="CylinderMesh" id="StemMesh"]
+material = SubResource("MetalMaterial")
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.55
+
+[sub_resource type="CylinderMesh" id="BaseMesh"]
+material = SubResource("MetalMaterial")
+top_radius = 0.42
+bottom_radius = 0.42
+height = 0.12
+
+[sub_resource type="CapsuleShape3D" id="BodyShape"]
+radius = 0.55
+height = 1.1
+
+[sub_resource type="SphereShape3D" id="TouchShape"]
+radius = 0.7
+
+[node name="SpinningStool" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_script")
+move_speed = 3.8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.55, 0)
+shape = SubResource("BodyShape")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Seat" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.72, 0)
+mesh = SubResource("SeatMesh")
+
+[node name="Stem" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.38, 0)
+mesh = SubResource("StemMesh")
+
+[node name="Base" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.08, 0)
+mesh = SubResource("BaseMesh")
+
+[node name="TouchArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TouchArea"]
+position = Vector3(0, 0.55, 0)
+shape = SubResource("TouchShape")
