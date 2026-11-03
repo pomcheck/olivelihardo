@@ -40,13 +40,15 @@ var _standing_capsule_height: float = 1.8
 var _is_sneaking: bool = false
 var _active_emote: StringName = &""
 var _emote_time: float = 0.0
-var _emote_start_yaw: float = 0.0
+var _facing_yaw: float = 0.0
+var _spin_yaw_offset: float = 0.0
 
 
 func _ready() -> void:
 	add_to_group("player")
 	_spawn_position = global_position
 	health = max_health
+	_facing_yaw = visual_root.rotation.y
 	var source_shape: CapsuleShape3D = player_collision.shape as CapsuleShape3D
 	if source_shape != null:
 		var unique_shape: CapsuleShape3D = source_shape.duplicate() as CapsuleShape3D
@@ -84,26 +86,25 @@ func _physics_process(delta: float) -> void:
 
 	_is_sneaking = Input.is_action_pressed(&"sneak")
 	_update_sneak_pose(delta)
-	if _active_emote == &"" and is_on_floor() and Input.is_action_just_pressed(&"jump"):
+	if is_on_floor() and Input.is_action_just_pressed(&"jump"):
 		velocity.y = JUMP_VELOCITY
 
-	var input_direction: Vector2 = Vector2.ZERO
-	if _active_emote == &"":
-		input_direction = Input.get_vector(
-			&"move_left",
-			&"move_right",
-			&"move_forward",
-			&"move_backward"
-		)
+	var input_direction: Vector2 = Input.get_vector(
+		&"move_left",
+		&"move_right",
+		&"move_forward",
+		&"move_backward"
+	)
 	var direction: Vector3 = Vector3(input_direction.x, 0.0, input_direction.y).normalized()
 	if direction != Vector3.ZERO:
 		var desired_yaw: float = atan2(-direction.x, -direction.z)
-		visual_root.rotation.y = lerp_angle(
-			visual_root.rotation.y,
+		_facing_yaw = lerp_angle(
+			_facing_yaw,
 			desired_yaw,
 			minf(ROTATION_SPEED * delta, 1.0)
 		)
 	_update_run_animation(delta, direction != Vector3.ZERO and is_on_floor() and not _is_sneaking)
+	visual_root.rotation.y = _facing_yaw + _spin_yaw_offset
 
 	var current_speed: float = SNEAK_SPEED if _is_sneaking else SPEED
 	var target_velocity: Vector3 = direction * current_speed
@@ -165,7 +166,7 @@ func play_emote(emote_name: StringName) -> void:
 		return
 	_active_emote = emote_name
 	_emote_time = 0.0
-	_emote_start_yaw = visual_root.rotation.y
+	_spin_yaw_offset = 0.0
 
 
 func _update_sneak_pose(delta: float) -> void:
@@ -202,7 +203,17 @@ func _update_run_animation(delta: float, is_running: bool) -> void:
 
 func _update_dance_animation(delta: float) -> void:
 	_emote_time += delta
+	if _emote_time >= 2.8:
+		_active_emote = &""
+		_spin_yaw_offset = 0.0
+		return
+
 	var dance_cycle: float = sin(_emote_time * TAU * 1.5)
+	left_arm_pivot.rotation.x = 0.0
+	right_arm_pivot.rotation.x = 0.0
+	left_leg_pivot.rotation.x = 0.0
+	right_leg_pivot.rotation.x = 0.0
+	visual_root.position.y = -0.22 if _is_sneaking else 0.0
 	match _active_emote:
 		&"groove":
 			left_arm_pivot.rotation.x = dance_cycle * 0.9
@@ -210,25 +221,16 @@ func _update_dance_animation(delta: float) -> void:
 			left_leg_pivot.rotation.x = dance_cycle * 0.35
 			right_leg_pivot.rotation.x = -dance_cycle * 0.35
 		&"spin":
-			visual_root.rotation.y = _emote_start_yaw + _emote_time * TAU * 1.2
+			_spin_yaw_offset += delta * TAU * 1.2
 			left_arm_pivot.rotation.x = -0.8
 			right_arm_pivot.rotation.x = -0.8
 		&"wave":
 			right_arm_pivot.rotation.x = -1.7 + absf(dance_cycle) * 0.75
 			left_arm_pivot.rotation.x = 0.2
 		&"bounce":
-			visual_root.position.y = absf(dance_cycle) * 0.22
+			visual_root.position.y += absf(dance_cycle) * 0.22
 			left_arm_pivot.rotation.x = dance_cycle * 0.45
 			right_arm_pivot.rotation.x = -dance_cycle * 0.45
-
-	if _emote_time >= 2.8:
-		_active_emote = &""
-		visual_root.rotation.y = _emote_start_yaw
-		visual_root.position.y = -0.22 if _is_sneaking else 0.0
-		left_arm_pivot.rotation.x = 0.0
-		right_arm_pivot.rotation.x = 0.0
-		left_leg_pivot.rotation.x = 0.0
-		right_leg_pivot.rotation.x = 0.0
 
 
 func _ensure_input_action(action_name: StringName, physical_keycode: Key) -> void:

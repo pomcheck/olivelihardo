@@ -9,6 +9,7 @@ var _resume_button: Button
 var _restart_button: Button
 var _emote_overlay: ColorRect
 var _player: CharacterBody3D
+var _hovered_emote: StringName = &""
 var _has_started: bool = false
 
 
@@ -117,7 +118,7 @@ func _create_menu_button(button_text: String) -> Button:
 func _build_emote_wheel(hud_root: Control) -> void:
 	_emote_overlay = ColorRect.new()
 	_emote_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_emote_overlay.color = Color(0.025, 0.04, 0.04, 0.82)
+	_emote_overlay.color = Color(0.025, 0.04, 0.04, 0.45)
 	_emote_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	_emote_overlay.visible = false
 	hud_root.add_child(_emote_overlay)
@@ -133,7 +134,7 @@ func _build_emote_wheel(hud_root: Control) -> void:
 	var wheel_panel: PanelContainer = PanelContainer.new()
 	wheel_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var wheel_style: StyleBoxFlat = StyleBoxFlat.new()
-	wheel_style.bg_color = Color(0.12, 0.17, 0.16, 0.98)
+	wheel_style.bg_color = Color(0.12, 0.17, 0.16, 0.88)
 	wheel_style.border_color = Color(0.78, 0.54, 0.26, 1.0)
 	wheel_style.set_border_width_all(2)
 	wheel_style.set_corner_radius_all(90)
@@ -163,9 +164,9 @@ func _build_emote_wheel(hud_root: Control) -> void:
 	_add_emote_button(wheel, "BOUNCE", &"bounce", Vector2(35.0, 145.0))
 
 	var hint: Label = Label.new()
-	hint.text = "F / ESC  CLOSE"
-	hint.position = Vector2(160.0, 318.0)
-	hint.size = Vector2(160.0, 24.0)
+	hint.text = "RELEASE F: DANCE  /  ESC: CLOSE"
+	hint.position = Vector2(110.0, 318.0)
+	hint.size = Vector2(260.0, 24.0)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 12)
 	wheel.add_child(hint)
@@ -175,7 +176,8 @@ func _add_emote_button(wheel: Control, button_text: String, emote_name: StringNa
 	var button: Button = _create_menu_button(button_text)
 	button.position = button_position
 	button.size = Vector2(130.0, 54.0)
-	button.pressed.connect(_select_emote.bind(emote_name))
+	button.mouse_entered.connect(_on_emote_hovered.bind(emote_name))
+	button.mouse_exited.connect(_on_emote_unhovered.bind(emote_name))
 	wheel.add_child(button)
 
 
@@ -183,10 +185,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey:
 		return
 	var key_event: InputEventKey = event
-	if not key_event.pressed or key_event.echo:
-		return
-
-	if key_event.keycode == KEY_ESCAPE:
+	if key_event.keycode == KEY_ESCAPE and key_event.pressed and not key_event.echo:
 		if _emote_overlay.visible:
 			_close_emote_wheel()
 		elif _has_started and get_tree().paused:
@@ -196,12 +195,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_tree().paused = true
 		get_viewport().set_input_as_handled()
 	elif key_event.keycode == KEY_F and _has_started:
-		if _emote_overlay.visible:
-			_close_emote_wheel()
-		elif not get_tree().paused:
-			_emote_overlay.visible = true
-			get_tree().paused = true
-		get_viewport().set_input_as_handled()
+		if key_event.pressed and not key_event.echo:
+			if not get_tree().paused and not _emote_overlay.visible:
+				_hovered_emote = &""
+				_emote_overlay.visible = true
+			get_viewport().set_input_as_handled()
+		elif not key_event.pressed and _emote_overlay.visible:
+			if _hovered_emote != &"":
+				_select_emote(_hovered_emote)
+			else:
+				_close_emote_wheel()
+			get_viewport().set_input_as_handled()
 
 
 func _show_menu(is_start_menu: bool) -> void:
@@ -239,9 +243,18 @@ func _select_emote(emote_name: StringName) -> void:
 	_close_emote_wheel()
 
 
+func _on_emote_hovered(emote_name: StringName) -> void:
+	_hovered_emote = emote_name
+
+
+func _on_emote_unhovered(emote_name: StringName) -> void:
+	if _hovered_emote == emote_name:
+		_hovered_emote = &""
+
+
 func _close_emote_wheel() -> void:
 	_emote_overlay.visible = false
-	get_tree().paused = false
+	_hovered_emote = &""
 
 
 func _on_death_count_changed(new_death_count: int) -> void:
