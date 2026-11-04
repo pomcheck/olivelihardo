@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name FurnitureEnemy
 
+const TOON_SHADER: Shader = preload("res://shaders/toon_cel.gdshader")
+
 enum State { SLEEPING, AWAKENING, ATTACKING, COOLDOWN }
 
 @export var detection_radius: float = 6.0
@@ -17,6 +19,8 @@ var home_position: Vector3 = Vector3.ZERO
 var _home_yaw: float = 0.0
 var _must_rearm: bool = false
 var _defused: bool = false
+var _base_visual_scale: Vector3 = Vector3.ONE
+var _wake_tween: Tween
 
 
 func _ready() -> void:
@@ -24,8 +28,10 @@ func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	home_position = global_position
 	_home_yaw = rotation.y
+	_base_visual_scale = visual_root.scale
 	floor_snap_length = 0.6
 	floor_max_angle = deg_to_rad(50.0)
+	_apply_toon_materials(visual_root)
 	touch_area.body_entered.connect(_on_touch_area_body_entered)
 
 
@@ -97,17 +103,69 @@ func defuse_here() -> void:
 	visual_root.rotation.z = PI * 0.5
 
 
+func reset_to_sleeping() -> void:
+	if _wake_tween != null and _wake_tween.is_running():
+		_wake_tween.kill()
+	current_state = State.SLEEPING
+	_cooldown_remaining = 0.0
+	_must_rearm = true
+	_defused = false
+	global_position = home_position
+	rotation.y = _home_yaw
+	velocity = Vector3.ZERO
+	visual_root.rotation = Vector3.ZERO
+	visual_root.scale = _base_visual_scale
+	touch_area.set_deferred("monitoring", true)
+	on_cooldown_finished()
+
+
+func _apply_toon_materials(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance: MeshInstance3D = node as MeshInstance3D
+		if mesh_instance.material_override is StandardMaterial3D:
+			mesh_instance.material_override = _make_toon_material(
+				mesh_instance.material_override as StandardMaterial3D
+			)
+		elif mesh_instance.mesh != null:
+			for surface_index: int in range(mesh_instance.mesh.get_surface_count()):
+				var source_material: Material = mesh_instance.get_surface_override_material(surface_index)
+				if source_material == null:
+					source_material = mesh_instance.mesh.surface_get_material(surface_index)
+				if source_material is StandardMaterial3D:
+					mesh_instance.set_surface_override_material(
+						surface_index,
+						_make_toon_material(source_material as StandardMaterial3D)
+					)
+	for child: Node in node.get_children():
+		_apply_toon_materials(child)
+
+
+func _make_toon_material(source: StandardMaterial3D) -> ShaderMaterial:
+	var toon_material: ShaderMaterial = ShaderMaterial.new()
+	toon_material.shader = TOON_SHADER
+	toon_material.set_shader_parameter("albedo_color", source.albedo_color)
+	toon_material.set_shader_parameter("albedo_texture", source.albedo_texture)
+	toon_material.set_shader_parameter("use_albedo_texture", source.albedo_texture != null)
+	toon_material.set_shader_parameter(
+		"texture_scale",
+		Vector2(source.uv1_scale.x, source.uv1_scale.y)
+	)
+	return toon_material
+
+
 func _begin_awakening() -> void:
 	current_state = State.AWAKENING
+	SoundManager.play_sfx(&"aggro")
 	var resting_scale: Vector3 = visual_root.scale
-	var wake_tween: Tween = create_tween()
-	wake_tween.tween_property(visual_root, "scale", resting_scale * Vector3(1.08, 0.92, 1.08), 0.15)
-	wake_tween.tween_property(visual_root, "scale", resting_scale, 0.15)
-	wake_tween.tween_callback(_finish_awakening)
+	_wake_tween = create_tween()
+	_wake_tween.tween_property(visual_root, "scale", resting_scale * Vector3(1.08, 0.92, 1.08), 0.15)
+	_wake_tween.tween_property(visual_root, "scale", resting_scale, 0.15)
+	_wake_tween.tween_callback(_finish_awakening)
 
 
 func _finish_awakening() -> void:
 	current_state = State.ATTACKING
+	SoundManager.play_sfx(&"attack")
 
 
 func _player_direction() -> Vector3:

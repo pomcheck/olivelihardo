@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="320" viewBox="0 0 512 320">
+  <rect x="24" y="24" width="464" height="272" rx="18" fill="#ed633d"/>
+  <rect x="40" y="40" width="432" height="240" rx="10" fill="none" stroke="#fff1d2" stroke-width="8"/>
+  <path d="M58 90h396" stroke="#552e36" stroke-width="6"/>
+  <text x="256" y="86" text-anchor="middle" fill="#fff1d2" font-family="sans-serif" font-size="43" font-weight="900" letter-spacing="6">SHOWROOM</text>
+  <text x="256" y="171" text-anchor="middle" fill="#fff1d2" font-family="sans-serif" font-size="72" font-weight="900">SALE!</text>
+  <text x="256" y="232" text-anchor="middle" fill="#552e36" font-family="sans-serif" font-size="35" font-weight="800">MIX • MATCH • SAVE</text>
+</svg>

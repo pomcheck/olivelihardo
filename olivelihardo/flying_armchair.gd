@@ -12,6 +12,15 @@ var _flight_phase: FlightPhase = FlightPhase.READY
 var _pause_remaining: float = 0.0
 var _launch_height: float = 0.0
 var _last_known_player_position: Vector3 = Vector3.ZERO
+var _flight_tween: Tween
+
+
+func reset_to_sleeping() -> void:
+	if _flight_tween != null and _flight_tween.is_running():
+		_flight_tween.kill()
+	_flight_phase = FlightPhase.READY
+	_pause_remaining = 0.0
+	super.reset_to_sleeping()
 
 
 func execute_attack(delta: float) -> void:
@@ -53,9 +62,9 @@ func _begin_flight() -> void:
 	_flight_phase = FlightPhase.LIFTING
 	_launch_height = position.y
 	_last_known_player_position = player.global_position if is_instance_valid(player) else global_position
-	var lift_tween: Tween = create_tween()
-	lift_tween.tween_property(self, "position:y", _launch_height + lift_height, 0.55)
-	lift_tween.tween_callback(_begin_pause)
+	_flight_tween = create_tween()
+	_flight_tween.tween_property(self, "position:y", _launch_height + lift_height, 0.55)
+	_flight_tween.tween_callback(_begin_pause)
 
 
 func _begin_pause() -> void:

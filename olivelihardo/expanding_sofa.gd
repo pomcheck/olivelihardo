@@ -8,6 +8,14 @@ var _expanded: bool = false
 var _expansion_tween: Tween
 
 
+func reset_to_sleeping() -> void:
+	if _expansion_tween != null and _expansion_tween.is_running():
+		_expansion_tween.kill()
+	_expanded = false
+	scale = Vector3.ONE
+	super.reset_to_sleeping()
+
+
 func execute_attack(delta: float) -> void:
 	_move_toward_player(delta, move_speed)
 	if not _expanded:

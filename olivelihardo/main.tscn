@@ -1,1268 +1,676 @@
 [gd_scene format=3 uid="uid://5q1pfhihpxj6"]
 
-[ext_resource type="Script" uid="uid://bkp1j5ouu4m3x" path="res://player.gd" id="1_ig7tw"]
-[ext_resource type="Script" path="res://hud.gd" id="3_hud"]
+[ext_resource type="Script" uid="uid://bkp1j5ouu4m3x" path="res://player.gd" id="1_player"]
+[ext_resource type="Script" path="res://hud.gd" id="2_hud"]
+[ext_resource type="Script" path="res://checkpoint.gd" id="3_checkpoint"]
 [ext_resource type="PackedScene" path="res://chasing_chair.tscn" id="4_chair"]
-[ext_resource type="Script" path="res://checkpoint.gd" id="5_checkpoint"]
-[ext_resource type="PackedScene" path="res://flying_armchair.tscn" id="6_armchair"]
-[ext_resource type="PackedScene" path="res://expanding_sofa.tscn" id="7_sofa"]
-[ext_resource type="PackedScene" path="res://spinning_stool.tscn" id="8_stool"]
-[ext_resource type="PackedScene" path="res://folding_trap_chair.tscn" id="9_trap_chair"]
+[ext_resource type="PackedScene" path="res://flying_armchair.tscn" id="5_armchair"]
+[ext_resource type="Texture2D" path="res://textures/upholstery_weave.svg" id="6_fabric"]
+[ext_resource type="Shader" path="res://shaders/toon_cel.gdshader" id="7_toon_shader"]
+[ext_resource type="Texture2D" path="res://textures/cream_tile.svg" id="8_tile"]
+[ext_resource type="Texture2D" path="res://textures/oak_grain.svg" id="9_oak"]
+[ext_resource type="PackedScene" path="res://showroom_display.tscn" id="10_display"]
+[ext_resource type="Script" path="res://showroom_dressing.gd" id="11_dressing"]
+
+[sub_resource type="ShaderMaterial" id="FloorMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.73, 0.67, 0.55, 1)
+shader_parameter/albedo_texture = ExtResource("8_tile")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(12, 68)
+
+[sub_resource type="ShaderMaterial" id="RampMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.68, 0.45, 0.25, 1)
+shader_parameter/albedo_texture = ExtResource("9_oak")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(4, 8)
+
+[sub_resource type="ShaderMaterial" id="WoodFloorMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.82, 0.6, 0.37, 1)
+shader_parameter/albedo_texture = ExtResource("9_oak")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(2, 14)
+
+[sub_resource type="ShaderMaterial" id="WallMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.78, 0.73, 0.62, 1)
+shader_parameter/albedo_texture = ExtResource("6_fabric")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(4, 8)
+
+[sub_resource type="ShaderMaterial" id="ShelfMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.62, 0.39, 0.21, 1)
+shader_parameter/albedo_texture = ExtResource("9_oak")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(2, 10)
+
+[sub_resource type="ShaderMaterial" id="DecorMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.16, 0.36, 0.32, 1)
+shader_parameter/albedo_texture = ExtResource("6_fabric")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(3, 3)
+
+[sub_resource type="StandardMaterial3D" id="RedFlagMaterial"]
+albedo_color = Color(0.88, 0.06, 0.04, 1)
+roughness = 0.9
+diffuse_mode = 3
+
+[sub_resource type="StandardMaterial3D" id="FlagPoleMaterial"]
+albedo_color = Color(0.16, 0.13, 0.1, 1)
+roughness = 0.8
+
+[sub_resource type="ShaderMaterial" id="PlayerSkinMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.24, 0.15, 0.1, 1)
+shader_parameter/use_albedo_texture = false
+
+[sub_resource type="ShaderMaterial" id="PlayerHairMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.055, 0.035, 0.025, 1)
+shader_parameter/use_albedo_texture = false
+
+[sub_resource type="ShaderMaterial" id="PlayerShirtMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.12, 0.45, 0.85, 1)
+shader_parameter/albedo_texture = ExtResource("6_fabric")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(3, 3)
+
+[sub_resource type="ShaderMaterial" id="PlayerPantsMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.08, 0.16, 0.28, 1)
+shader_parameter/use_albedo_texture = false
+
+[sub_resource type="ShaderMaterial" id="PlayerShoeMaterial"]
+shader = ExtResource("7_toon_shader")
+shader_parameter/albedo_color = Color(0.08, 0.065, 0.055, 1)
+shader_parameter/use_albedo_texture = false
+
+[sub_resource type="BoxMesh" id="UnitBoxMesh"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxMesh" id="ShelfRailMesh"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="UnitBoxShape"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="Zone1Shape"]
+size = Vector3(12, 0.5, 68)
+
+[sub_resource type="BoxShape3D" id="Zone2Shape"]
+size = Vector3(12, 0.5, 68)
+
+[sub_resource type="BoxShape3D" id="Zone3Shape"]
+size = Vector3(12, 0.5, 68)
 
 [sub_resource type="BoxShape3D" id="FallFloorShape"]
 size = Vector3(100, 0.5, 100)
+
+[sub_resource type="BoxShape3D" id="RampShape"]
+size = Vector3(10, 0.12, 14.22)
+
+[sub_resource type="BoxShape3D" id="CheckpointShape"]
+size = Vector3(5, 2, 5)
+
+[sub_resource type="BoxShape3D" id="ExitShape"]
+size = Vector3(4, 2, 4)
 
 [sub_resource type="CapsuleShape3D" id="PlayerShape"]
 radius = 0.4
 height = 1.8
 
-[sub_resource type="StandardMaterial3D" id="SkinMaterial"]
-albedo_color = Color(0.24, 0.15, 0.1, 1)
-
-[sub_resource type="StandardMaterial3D" id="ShirtMaterial"]
-albedo_color = Color(0.04, 0.48, 0.52, 1)
-
-[sub_resource type="StandardMaterial3D" id="PantsMaterial"]
-albedo_color = Color(0.08, 0.16, 0.28, 1)
-
-[sub_resource type="BoxMesh" id="TorsoMesh"]
-material = SubResource("ShirtMaterial")
+[sub_resource type="BoxMesh" id="PlayerTorsoMesh"]
+material = SubResource("PlayerShirtMaterial")
 size = Vector3(0.62, 0.72, 0.38)
 
-[sub_resource type="SphereMesh" id="HeadMesh"]
-material = SubResource("SkinMaterial")
+[sub_resource type="SphereMesh" id="PlayerHeadMesh"]
+material = SubResource("PlayerSkinMaterial")
 radius = 0.22
 height = 0.44
 
-[sub_resource type="BoxMesh" id="LimbMesh"]
+[sub_resource type="SphereMesh" id="PlayerHairMesh"]
+material = SubResource("PlayerHairMaterial")
+radius = 0.235
+height = 0.28
+
+[sub_resource type="BoxMesh" id="PlayerArmMesh"]
+material = SubResource("PlayerShirtMaterial")
 size = Vector3(0.18, 0.62, 0.2)
 
-[sub_resource type="BoxMesh" id="LegMesh"]
-material = SubResource("PantsMaterial")
+[sub_resource type="BoxMesh" id="PlayerLegMesh"]
+material = SubResource("PlayerPantsMaterial")
 size = Vector3(0.22, 0.48, 0.28)
 
-[sub_resource type="StandardMaterial3D" id="GrassMaterial"]
-albedo_color = Color(0.25, 0.38, 0.2, 1)
-
-[sub_resource type="StandardMaterial3D" id="RockMaterial"]
-albedo_color = Color(0.34, 0.36, 0.32, 1)
-
-[sub_resource type="StandardMaterial3D" id="RampMaterial"]
-albedo_color = Color(0.42, 0.34, 0.23, 1)
-
-[sub_resource type="StandardMaterial3D" id="FlagMaterial"]
-albedo_color = Color(0.82, 0.08, 0.06, 1)
-
-[sub_resource type="StandardMaterial3D" id="PoleMaterial"]
-albedo_color = Color(0.12, 0.13, 0.12, 1)
-
-[sub_resource type="BoxMesh" id="UnitBlockMesh"]
-size = Vector3(1, 1, 1)
-
-[sub_resource type="BoxShape3D" id="UnitBlockShape"]
-size = Vector3(1, 1, 1)
+[sub_resource type="BoxMesh" id="PlayerShoeMesh"]
+material = SubResource("PlayerShoeMaterial")
+size = Vector3(0.3, 0.14, 0.4)
 
 [sub_resource type="CylinderMesh" id="FlagPoleMesh"]
-material = SubResource("PoleMaterial")
+material = SubResource("FlagPoleMaterial")
 top_radius = 0.05
 bottom_radius = 0.05
 height = 2.4
 
-[sub_resource type="BoxMesh" id="GoalFlagMesh"]
-material = SubResource("FlagMaterial")
-size = Vector3(0.8, 0.38, 0.08)
+[sub_resource type="BoxMesh" id="ExitFlagMesh"]
+material = SubResource("RedFlagMaterial")
+size = Vector3(0.85, 0.42, 0.08)
 
-[sub_resource type="BoxShape3D" id="GoalZoneShape"]
-size = Vector3(2.5, 2.0, 2.5)
-
-[sub_resource type="SphereMesh" id="RockMesh"]
-radial_segments = 8
-rings = 4
-
-[sub_resource type="SphereShape3D" id="RockShape"]
-radius = 1.0
-
-[sub_resource type="FastNoiseLite" id="WoodGrainNoise"]
-noise_type = 3
-frequency = 0.035
-fractal_octaves = 2
-
-[sub_resource type="NoiseTexture2D" id="WoodGrainTexture"]
-seamless = true
-noise = SubResource("WoodGrainNoise")
-
-[sub_resource type="FastNoiseLite" id="StoneSpeckleNoise"]
-frequency = 0.12
-fractal_octaves = 3
-
-[sub_resource type="NoiseTexture2D" id="StoneSpeckleTexture"]
-seamless = true
-noise = SubResource("StoneSpeckleNoise")
-
-[sub_resource type="StandardMaterial3D" id="StoreWallMaterial"]
-albedo_color = Color(0.68, 0.64, 0.56, 1)
-roughness = 0.86
-
-[sub_resource type="StandardMaterial3D" id="DisplayWoodMaterial"]
-albedo_color = Color(0.48, 0.29, 0.14, 1)
-albedo_texture = SubResource("WoodGrainTexture")
-uv1_scale = Vector3(3, 3, 3)
-roughness = 0.62
-
-[sub_resource type="StandardMaterial3D" id="LinenMaterial"]
-albedo_color = Color(0.83, 0.79, 0.68, 1)
-roughness = 0.95
-
-[sub_resource type="StandardMaterial3D" id="FurnitureBlueMaterial"]
-albedo_color = Color(0.11, 0.33, 0.5, 1)
-
-[sub_resource type="StandardMaterial3D" id="FurnitureGoldMaterial"]
-albedo_color = Color(0.72, 0.43, 0.14, 1)
-
-[sub_resource type="StandardMaterial3D" id="RugMaterial"]
-albedo_color = Color(0.52, 0.18, 0.16, 1)
-
-[sub_resource type="StandardMaterial3D" id="WalnutMaterial"]
-albedo_color = Color(0.62, 0.43, 0.25, 1)
-albedo_texture = SubResource("WoodGrainTexture")
-uv1_scale = Vector3(3, 3, 3)
-roughness = 0.48
-
-[sub_resource type="StandardMaterial3D" id="CreamTileMaterial"]
-albedo_color = Color(0.82, 0.78, 0.68, 1)
-albedo_texture = SubResource("StoneSpeckleTexture")
-uv1_scale = Vector3(7, 7, 7)
-roughness = 0.32
-metallic = 0.08
-
-[sub_resource type="StandardMaterial3D" id="DarkWoodMaterial"]
-albedo_color = Color(0.22, 0.13, 0.08, 1)
-albedo_texture = SubResource("WoodGrainTexture")
-uv1_scale = Vector3(2, 2, 2)
-roughness = 0.4
-
-[sub_resource type="StandardMaterial3D" id="BrassMaterial"]
-albedo_color = Color(0.72, 0.48, 0.2, 1)
-metallic = 0.72
-roughness = 0.24
-
-[sub_resource type="StandardMaterial3D" id="LeafMaterial"]
-albedo_color = Color(0.19, 0.34, 0.2, 1)
-roughness = 0.92
-
-[sub_resource type="StandardMaterial3D" id="TerracottaMaterial"]
-albedo_color = Color(0.56, 0.22, 0.13, 1)
-roughness = 0.78
-
-[sub_resource type="StandardMaterial3D" id="SageUpholsteryMaterial"]
-albedo_color = Color(0.32, 0.43, 0.34, 1)
-roughness = 0.98
-
-[sub_resource type="StandardMaterial3D" id="DisplayLightMaterial"]
-albedo_color = Color(1, 0.78, 0.4, 1)
-emission_enabled = true
-emission = Color(1, 0.56, 0.19, 1)
-emission_energy_multiplier = 1.4
-
-[sub_resource type="BoxMesh" id="DetailBoxMesh"]
-size = Vector3(1, 1, 1)
-
-[sub_resource type="SphereMesh" id="PlantLeafMesh"]
-radius = 0.32
-height = 0.72
-radial_segments = 8
-rings = 4
-
-[sub_resource type="CylinderMesh" id="PlantPotMesh"]
-top_radius = 0.24
-bottom_radius = 0.18
-height = 0.42
-
-[sub_resource type="CylinderMesh" id="PendantShadeMesh"]
-top_radius = 0.12
-bottom_radius = 0.42
-height = 0.32
-
-[sub_resource type="BoxMesh" id="MattressMesh"]
-material = SubResource("LinenMaterial")
-
-[sub_resource type="BoxMesh" id="PillowMesh"]
-material = SubResource("LinenMaterial")
-
-[sub_resource type="BoxMesh" id="RugMesh"]
-material = SubResource("RugMaterial")
-
-[sub_resource type="CylinderMesh" id="LampStemMesh"]
-material = SubResource("DisplayWoodMaterial")
-top_radius = 0.035
-bottom_radius = 0.035
-height = 1.2
-
-[sub_resource type="CylinderMesh" id="LampShadeMesh"]
-material = SubResource("FurnitureGoldMaterial")
-top_radius = 0.18
-bottom_radius = 0.38
-height = 0.35
+[sub_resource type="Environment" id="Environment_Empty"]
+background_mode = 1
+background_color = Color(0.68, 0.77, 0.84, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.9, 0.84, 0.76, 1)
+ambient_light_energy = 1.0
+reflected_light_source = 1
+tonemap_mode = 2
 
 [node name="Main" type="Node3D" unique_id=411964863]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2037265823]
-transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
-light_color = Color(1, 0.88, 0.72, 1)
-light_energy = 1.1
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.75, -0.5, 0)
+light_color = Color(1, 0.9, 0.76, 1)
+light_energy = 1.35
 shadow_enabled = true
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_Empty")
+
+[node name="ShowroomDressing" type="Node3D" parent="."]
+script = ExtResource("11_dressing")
+
+[node name="Zone1StartPlateau" type="StaticBody3D" parent="."]
+position = Vector3(-24, -0.25, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone1StartPlateau"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(12, 0.5, 68)
+material_override = SubResource("FloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone1StartPlateau"]
+shape = SubResource("Zone1Shape")
+
+[node name="Ramp1" type="StaticBody3D" parent="."]
+position = Vector3(-18, 1.19, 29)
+rotation = Vector3(-0.17671, 1.570796, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Ramp1"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(10, 0.12, 14.22)
+material_override = SubResource("RampMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp1"]
+shape = SubResource("RampShape")
+
+[node name="Zone2WestFloor" type="StaticBody3D" parent="."]
+position = Vector3(-15.6, 2.25, -5)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone2WestFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(4.8, 0.5, 58)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone2WestFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(4.8, 0.5, 58)
+
+[node name="Zone2CenterFloor" type="StaticBody3D" parent="."]
+position = Vector3(-12.1, 2.25, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone2CenterFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(2.2, 0.5, 48)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone2CenterFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(2.2, 0.5, 48)
+
+[node name="Zone2EastFloor" type="StaticBody3D" parent="."]
+position = Vector3(-8.5, 2.25, 5)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone2EastFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(5, 0.5, 58)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone2EastFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(5, 0.5, 58)
+
+[node name="Ramp2" type="StaticBody3D" parent="."]
+position = Vector3(-6, 1.94, -29)
+rotation = Vector3(0.07034, 1.570796, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Ramp2"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(10, 0.12, 14.22)
+material_override = SubResource("RampMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp2"]
+shape = SubResource("RampShape")
+
+[node name="Zone3LowerPlateau" type="StaticBody3D" parent="."]
+position = Vector3(0, 1.25, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone3LowerPlateau"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(12, 0.5, 68)
+material_override = SubResource("FloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone3LowerPlateau"]
+shape = SubResource("Zone3Shape")
+
+[node name="Ramp3" type="StaticBody3D" parent="."]
+position = Vector3(6, 2.69, 29)
+rotation = Vector3(-0.17671, 1.570796, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Ramp3"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(10, 0.12, 14.22)
+material_override = SubResource("RampMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp3"]
+shape = SubResource("RampShape")
+
+[node name="Zone4ApproachFloor" type="StaticBody3D" parent="."]
+position = Vector3(9.5, 3.75, -5)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone4ApproachFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(7, 0.5, 58)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone4ApproachFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(7, 0.5, 58)
+
+[node name="Zone4ExitFloor" type="StaticBody3D" parent="."]
+position = Vector3(15.5, 3.75, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone4ExitFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(5, 0.5, 68)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone4ExitFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(5, 0.5, 68)
+
+[node name="Ramp4" type="StaticBody3D" parent="."]
+position = Vector3(18, 4.44, -29)
+rotation = Vector3(-0.07034, 1.570796, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Ramp4"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(10, 0.12, 14.22)
+material_override = SubResource("RampMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp4"]
+shape = SubResource("RampShape")
+
+[node name="Zone5ApproachFloor" type="StaticBody3D" parent="."]
+position = Vector3(21.55, 4.75, 5)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone5ApproachFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(7.1, 0.5, 58)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone5ApproachFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(7.1, 0.5, 58)
+
+[node name="Zone5ExitFloor" type="StaticBody3D" parent="."]
+position = Vector3(27.55, 4.75, 0)
+
+[node name="Surface" type="MeshInstance3D" parent="Zone5ExitFloor"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(4.9, 0.5, 68)
+material_override = SubResource("WoodFloorMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone5ExitFloor"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(4.9, 0.5, 68)
+
 [node name="FallFloor" type="StaticBody3D" parent="."]
-position = Vector3(0, -10.25, 0)
+position = Vector3(0, -12, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="FallFloor"]
 shape = SubResource("FallFloorShape")
 
-[node name="RoomBoundaryWalls" type="Node3D" parent="."]
-
-[node name="StartWestWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(-9.75, 1.25, 0)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartWestWall"]
-scale = Vector3(0.5, 2.5, 18)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartWestWall"]
-scale = Vector3(0.5, 2.5, 18)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartEastWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(9.75, 1.25, 0)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartEastWall"]
-scale = Vector3(0.5, 2.5, 18)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartEastWall"]
-scale = Vector3(0.5, 2.5, 18)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartSouthWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(0, 1.25, 8.75)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartSouthWall"]
-scale = Vector3(20, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartSouthWall"]
-scale = Vector3(20, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartNorthWestWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(-6.5, 1.25, -8.75)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartNorthWestWall"]
-scale = Vector3(7, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartNorthWestWall"]
-scale = Vector3(7, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartNorthEastWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(6.5, 1.25, -8.75)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartNorthEastWall"]
-scale = Vector3(7, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartNorthEastWall"]
-scale = Vector3(7, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartNorthRampRailLeft" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(-3.3, 2.25, -12.5)
-rotation = Vector3(0.2783, 0, 0)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartNorthRampRailLeft"]
-scale = Vector3(0.45, 2.5, 7.3)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartNorthRampRailLeft"]
-scale = Vector3(0.45, 2.5, 7.3)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartNorthRampRailRight" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(3.3, 2.25, -12.5)
-rotation = Vector3(0.2783, 0, 0)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/StartNorthRampRailRight"]
-scale = Vector3(0.45, 2.5, 7.3)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/StartNorthRampRailRight"]
-scale = Vector3(0.45, 2.5, 7.3)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperWestWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(-6.75, 3.25, -23)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperWestWall"]
-scale = Vector3(0.5, 2.5, 14)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperWestWall"]
-scale = Vector3(0.5, 2.5, 14)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperNorthWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(0, 3.25, -29.75)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperNorthWall"]
-scale = Vector3(14, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperNorthWall"]
-scale = Vector3(14, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperSouthWallLeft" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(-3.75, 3.25, -16.25)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperSouthWallLeft"]
-scale = Vector3(6.5, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperSouthWallLeft"]
-scale = Vector3(6.5, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperSouthWallRight" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(3.75, 3.25, -16.25)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperSouthWallRight"]
-scale = Vector3(6.5, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperSouthWallRight"]
-scale = Vector3(6.5, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperEastWallNorth" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(6.75, 3.25, -28)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperEastWallNorth"]
-scale = Vector3(0.5, 2.5, 4)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperEastWallNorth"]
-scale = Vector3(0.5, 2.5, 4)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperEastWallSouth" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(6.75, 3.25, -18)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperEastWallSouth"]
-scale = Vector3(0.5, 2.5, 4)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperEastWallSouth"]
-scale = Vector3(0.5, 2.5, 4)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperEastRampRailNorth" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(12.5, 3.25, -26)
-rotation = Vector3(0, 0, 0.109)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperEastRampRailNorth"]
-scale = Vector3(11, 2.5, 0.45)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperEastRampRailNorth"]
-scale = Vector3(11, 2.5, 0.45)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperEastRampRailSouth" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(12.5, 3.25, -20)
-rotation = Vector3(0, 0, 0.109)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/UpperEastRampRailSouth"]
-scale = Vector3(11, 2.5, 0.45)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/UpperEastRampRailSouth"]
-scale = Vector3(11, 2.5, 0.45)
-shape = SubResource("UnitBlockShape")
-
-[node name="GoalEastWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(32.25, 4.45, -23)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/GoalEastWall"]
-scale = Vector3(0.5, 2.5, 14)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/GoalEastWall"]
-scale = Vector3(0.5, 2.5, 14)
-shape = SubResource("UnitBlockShape")
-
-[node name="GoalNorthWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(25, 4.45, -29.75)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/GoalNorthWall"]
-scale = Vector3(14, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/GoalNorthWall"]
-scale = Vector3(14, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="GoalSouthWall" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(25, 4.45, -16.25)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/GoalSouthWall"]
-scale = Vector3(14, 2.5, 0.5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/GoalSouthWall"]
-scale = Vector3(14, 2.5, 0.5)
-shape = SubResource("UnitBlockShape")
-
-[node name="GoalWestWallNorth" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(17.75, 4.45, -28)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/GoalWestWallNorth"]
-scale = Vector3(0.5, 2.5, 4)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/GoalWestWallNorth"]
-scale = Vector3(0.5, 2.5, 4)
-shape = SubResource("UnitBlockShape")
-
-[node name="GoalWestWallSouth" type="StaticBody3D" parent="RoomBoundaryWalls"]
-position = Vector3(17.75, 4.45, -18)
-
-[node name="WallMesh" type="MeshInstance3D" parent="RoomBoundaryWalls/GoalWestWallSouth"]
-scale = Vector3(0.5, 2.5, 4)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RoomBoundaryWalls/GoalWestWallSouth"]
-scale = Vector3(0.5, 2.5, 4)
-shape = SubResource("UnitBlockShape")
-
-[node name="FurnitureDisplays" type="Node3D" parent="."]
-
-[node name="BedroomBed" type="StaticBody3D" parent="FurnitureDisplays"]
-position = Vector3(-3, 2.3, -25)
-
-[node name="Mattress" type="MeshInstance3D" parent="FurnitureDisplays/BedroomBed"]
-scale = Vector3(3, 0.55, 4)
-mesh = SubResource("MattressMesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FurnitureDisplays/BedroomBed"]
-position = Vector3(0, -0.1, 0)
-scale = Vector3(3, 0.8, 4)
-shape = SubResource("UnitBlockShape")
-
-[node name="BedBase" type="MeshInstance3D" parent="FurnitureDisplays/BedroomBed"]
-position = Vector3(0, -0.38, 0)
-scale = Vector3(3, 0.2, 4)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("DisplayWoodMaterial")
-
-[node name="PillowLeft" type="MeshInstance3D" parent="FurnitureDisplays/BedroomBed"]
-position = Vector3(-0.7, 0.31, -1.35)
-scale = Vector3(0.8, 0.18, 0.55)
-mesh = SubResource("PillowMesh")
-
-[node name="PillowRight" type="MeshInstance3D" parent="FurnitureDisplays/BedroomBed"]
-position = Vector3(0.7, 0.31, -1.35)
-scale = Vector3(0.8, 0.18, 0.55)
-mesh = SubResource("PillowMesh")
-
-[node name="BedHeadboard" type="MeshInstance3D" parent="FurnitureDisplays/BedroomBed"]
-position = Vector3(0, 0.25, -2.05)
-scale = Vector3(3, 1.1, 0.18)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("DisplayWoodMaterial")
-
-[node name="DiningTable" type="StaticBody3D" parent="FurnitureDisplays"]
-position = Vector3(-6, 0.62, 4)
-
-[node name="TableTop" type="MeshInstance3D" parent="FurnitureDisplays/DiningTable"]
-position = Vector3(0, 0.35, 0)
-scale = Vector3(3, 0.18, 2)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("DisplayWoodMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FurnitureDisplays/DiningTable"]
-position = Vector3(0, 0.35, 0)
-scale = Vector3(3, 0.18, 2)
-shape = SubResource("UnitBlockShape")
-
-[node name="DiningVase" type="MeshInstance3D" parent="FurnitureDisplays/DiningTable"]
-position = Vector3(0, 0.65, 0)
-scale = Vector3(0.28, 0.42, 0.28)
-mesh = SubResource("RockMesh")
-material_override = SubResource("FurnitureGoldMaterial")
-
-[node name="KitchenIsland" type="StaticBody3D" parent="FurnitureDisplays"]
-position = Vector3(6, 0.52, -3)
-
-[node name="Cabinet" type="MeshInstance3D" parent="FurnitureDisplays/KitchenIsland"]
-position = Vector3(0, 0.1, 0)
-scale = Vector3(3.2, 1.0, 1.4)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="CounterTop" type="MeshInstance3D" parent="FurnitureDisplays/KitchenIsland"]
-position = Vector3(0, 0.68, 0)
-scale = Vector3(3.5, 0.18, 1.6)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("LinenMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FurnitureDisplays/KitchenIsland"]
-position = Vector3(0, 0.1, 0)
-scale = Vector3(3.2, 1.0, 1.4)
-shape = SubResource("UnitBlockShape")
-
-[node name="BlueSofaDisplay" type="StaticBody3D" parent="FurnitureDisplays"]
-position = Vector3(3, 2.5, -19)
-
-[node name="Seat" type="MeshInstance3D" parent="FurnitureDisplays/BlueSofaDisplay"]
-position = Vector3(0, 0.15, 0)
-scale = Vector3(3, 0.55, 1.1)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="Back" type="MeshInstance3D" parent="FurnitureDisplays/BlueSofaDisplay"]
-position = Vector3(0, 0.7, -0.42)
-scale = Vector3(3, 0.7, 0.25)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FurnitureDisplays/BlueSofaDisplay"]
-position = Vector3(0, 0.15, 0)
-scale = Vector3(3, 0.55, 1.1)
-shape = SubResource("UnitBlockShape")
-
-[node name="CheckoutCounter" type="StaticBody3D" parent="FurnitureDisplays"]
-position = Vector3(28, 3.65, -19)
-
-[node name="Counter" type="MeshInstance3D" parent="FurnitureDisplays/CheckoutCounter"]
-scale = Vector3(3.5, 1.0, 1.2)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("DisplayWoodMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FurnitureDisplays/CheckoutCounter"]
-scale = Vector3(3.5, 1.0, 1.2)
-shape = SubResource("UnitBlockShape")
-
-[node name="BedroomLabel" type="Label3D" parent="FurnitureDisplays"]
-position = Vector3(-3, 4.0, -28)
-text = "BEDROOMS"
-font_size = 40
-modulate = Color(0.95, 0.86, 0.62, 1)
-
-[node name="KitchenLabel" type="Label3D" parent="FurnitureDisplays"]
-position = Vector3(6, 2.7, -4.5)
-text = "KITCHENS"
-font_size = 32
-modulate = Color(0.95, 0.86, 0.62, 1)
-
-[node name="FloorRugStart" type="MeshInstance3D" parent="FurnitureDisplays"]
-position = Vector3(3, 0.03, 5)
-scale = Vector3(4, 0.04, 2.5)
-mesh = SubResource("RugMesh")
-
-[node name="FloorRugUpper" type="MeshInstance3D" parent="FurnitureDisplays"]
-position = Vector3(3, 2.03, -27)
-scale = Vector3(4, 0.04, 2.5)
-mesh = SubResource("RugMesh")
-
-[node name="FloorLampStem" type="MeshInstance3D" parent="FurnitureDisplays"]
-position = Vector3(-8, 0.6, 5)
-mesh = SubResource("LampStemMesh")
-
-[node name="FloorLampShade" type="MeshInstance3D" parent="FurnitureDisplays"]
-position = Vector3(-8, 1.35, 5)
-mesh = SubResource("LampShadeMesh")
-
-[node name="ShowroomFitout" type="Node3D" parent="."]
-
-[node name="EntryWelcomeSign" type="Label3D" parent="ShowroomFitout"]
-position = Vector3(0, 2.2, -8.32)
-text = "OLIVELIHARDO  |  HOME & LIVING"
-font_size = 34
-outline_size = 8
-modulate = Color(0.96, 0.77, 0.38, 1)
-
-[node name="EntrySignBack" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(0, 2.13, -8.43)
-scale = Vector3(5.8, 0.78, 0.16)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="WestFeatureShelf" type="Node3D" parent="ShowroomFitout"]
-position = Vector3(-8.55, 0, -0.5)
-
-[node name="WestShelfTop" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(0, 1.72, 0)
-scale = Vector3(1.45, 0.12, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="WestShelfMiddle" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(0, 1.06, 0)
-scale = Vector3(1.45, 0.1, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="WestShelfBase" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(0, 0.38, 0)
-scale = Vector3(1.45, 0.12, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="WestShelfLeftSide" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(-0.65, 1.02, 0)
-scale = Vector3(0.12, 1.42, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="WestShelfRightSide" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(0.65, 1.02, 0)
-scale = Vector3(0.12, 1.42, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="WestShelfBooks" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(-0.28, 1.36, 0)
-rotation = Vector3(0, 0, -0.12)
-scale = Vector3(0.5, 0.42, 0.34)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="WestShelfVase" type="MeshInstance3D" parent="ShowroomFitout/WestFeatureShelf"]
-position = Vector3(0.34, 1.35, 0)
-scale = Vector3(0.3, 0.42, 0.3)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="EastFeatureShelf" type="Node3D" parent="ShowroomFitout"]
-position = Vector3(8.55, 0, -0.5)
-
-[node name="EastShelfTop" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(0, 1.72, 0)
-scale = Vector3(1.45, 0.12, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="EastShelfMiddle" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(0, 1.06, 0)
-scale = Vector3(1.45, 0.1, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="EastShelfBase" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(0, 0.38, 0)
-scale = Vector3(1.45, 0.12, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="EastShelfLeftSide" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(-0.65, 1.02, 0)
-scale = Vector3(0.12, 1.42, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="EastShelfRightSide" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(0.65, 1.02, 0)
-scale = Vector3(0.12, 1.42, 0.62)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="EastShelfBooks" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(0.27, 1.35, 0)
-scale = Vector3(0.48, 0.38, 0.35)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("FurnitureGoldMaterial")
-
-[node name="EastShelfBowl" type="MeshInstance3D" parent="ShowroomFitout/EastFeatureShelf"]
-position = Vector3(-0.33, 1.33, 0)
-scale = Vector3(0.34, 0.24, 0.34)
-mesh = SubResource("RockMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="EntryPlantPotRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(8.5, 0.24, 6.7)
-mesh = SubResource("PlantPotMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="EntryPlantLeavesRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(8.5, 0.77, 6.7)
-scale = Vector3(1, 1.35, 1)
-mesh = SubResource("PlantLeafMesh")
-material_override = SubResource("LeafMaterial")
-
-[node name="EntryPlantPot" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-8.6, 0.24, -6.1)
-mesh = SubResource("PlantPotMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="EntryPlantLeaves" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-8.6, 0.77, -6.1)
-scale = Vector3(1, 1.35, 1)
-mesh = SubResource("PlantLeafMesh")
-material_override = SubResource("LeafMaterial")
-
-[node name="LoungeSofaSeat" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6, 0.52, 5.7)
-scale = Vector3(2.7, 0.52, 1.08)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="LoungeSofaBack" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6, 1.05, 6.1)
-scale = Vector3(2.7, 0.76, 0.22)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="LoungeSofaArmLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(4.72, 0.83, 5.7)
-scale = Vector3(0.18, 0.62, 1.08)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="LoungeSofaArmRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(7.28, 0.83, 5.7)
-scale = Vector3(0.18, 0.62, 1.08)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="LoungeCoffeeTableTop" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6, 0.47, 3.7)
-scale = Vector3(2.15, 0.14, 0.9)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="LoungeCoffeeTableBase" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6, 0.25, 3.7)
-scale = Vector3(1.05, 0.35, 0.3)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="LoungeVase" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6.45, 0.76, 3.7)
-scale = Vector3(0.24, 0.35, 0.24)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="LivingRoomLabel" type="Label3D" parent="ShowroomFitout"]
-position = Vector3(6, 2.25, 7.9)
-rotation = Vector3(0, 3.141593, 0)
-text = "LIVING ROOM"
-font_size = 27
-outline_size = 5
-modulate = Color(0.95, 0.76, 0.4, 1)
-
-[node name="LoungeSofaFootFrontLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(5.1, 0.15, 5.32)
-scale = Vector3(0.13, 0.3, 0.13)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="LoungeSofaFootFrontRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6.9, 0.15, 5.32)
-scale = Vector3(0.13, 0.3, 0.13)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="LoungeSofaFootBackLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(5.1, 0.15, 6.08)
-scale = Vector3(0.13, 0.3, 0.13)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="LoungeSofaFootBackRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6.9, 0.15, 6.08)
-scale = Vector3(0.13, 0.3, 0.13)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="DiningTableRunner" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-6, 1.07, 4)
-scale = Vector3(2.4, 0.035, 0.52)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("RugMaterial")
-
-[node name="KitchenDrawerHandleLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(5.25, 0.5, -2.27)
-scale = Vector3(0.28, 0.045, 0.04)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="KitchenDrawerHandleCenter" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6, 0.5, -2.27)
-scale = Vector3(0.28, 0.045, 0.04)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="KitchenDrawerHandleRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6.75, 0.5, -2.27)
-scale = Vector3(0.28, 0.045, 0.04)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="DiningChairLeftSeat" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-8, 0.58, 4)
-scale = Vector3(0.9, 0.14, 0.86)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="DiningChairLeftBack" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-8, 1.02, 4.38)
-scale = Vector3(0.9, 0.82, 0.13)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="DiningChairRightSeat" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-4, 0.58, 4)
-scale = Vector3(0.9, 0.14, 0.86)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="DiningChairRightBack" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-4, 1.02, 3.62)
-scale = Vector3(0.9, 0.82, 0.13)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="KitchenPendantShade" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(6, 2.1, -3)
-mesh = SubResource("PendantShadeMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="KitchenPendantGlow" type="OmniLight3D" parent="ShowroomFitout"]
-position = Vector3(6, 1.88, -3)
-light_color = Color(1, 0.73, 0.39, 1)
-light_energy = 0.8
-omni_range = 5.5
-shadow_enabled = false
-
-[node name="KitchenDisplayLabel" type="Label3D" parent="ShowroomFitout"]
-position = Vector3(6, 2.55, -4.25)
-text = "KITCHEN STUDIO"
-font_size = 24
-outline_size = 5
-modulate = Color(0.95, 0.76, 0.4, 1)
-
-[node name="BedroomNightstandLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-5.45, 2.35, -25)
-scale = Vector3(0.85, 0.72, 0.78)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="BedroomNightstandRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-0.55, 2.35, -25)
-scale = Vector3(0.85, 0.72, 0.78)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="BedsideLampLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-5.45, 2.83, -25)
-scale = Vector3(0.42, 0.3, 0.42)
-mesh = SubResource("PlantLeafMesh")
-material_override = SubResource("DisplayLightMaterial")
-
-[node name="BedsideLampRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-0.55, 2.83, -25)
-scale = Vector3(0.42, 0.3, 0.42)
-mesh = SubResource("PlantLeafMesh")
-material_override = SubResource("DisplayLightMaterial")
-
-[node name="BedroomWardrobe" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-5.35, 2.85, -19.2)
-scale = Vector3(2.15, 2.1, 0.72)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="WardrobeDoorLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-5.83, 2.85, -18.82)
-scale = Vector3(0.86, 1.88, 0.035)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="WardrobeDoorRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-4.87, 2.85, -18.82)
-scale = Vector3(0.86, 1.88, 0.035)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="WardrobeHandleLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-5.49, 2.85, -18.78)
-scale = Vector3(0.045, 0.34, 0.04)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="WardrobeHandleRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(-5.21, 2.85, -18.78)
-scale = Vector3(0.045, 0.34, 0.04)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="BedroomDisplayLabel" type="Label3D" parent="ShowroomFitout"]
-position = Vector3(-3, 4.15, -29.8)
-text = "SCHLAFEN  /  BEDROOM"
-font_size = 28
-outline_size = 6
-modulate = Color(0.95, 0.76, 0.4, 1)
-
-[node name="GoalLoungeSofaSeat" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(20.3, 3.42, -27.1)
-scale = Vector3(2.9, 0.56, 1.15)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="GoalLoungeSofaBack" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(20.3, 4.02, -27.55)
-scale = Vector3(2.9, 0.78, 0.24)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="GoalLoungeSofaArmLeft" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(18.95, 3.78, -27.1)
-scale = Vector3(0.28, 0.7, 1.15)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="GoalLoungeSofaArmRight" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(21.65, 3.78, -27.1)
-scale = Vector3(0.28, 0.7, 1.15)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("SageUpholsteryMaterial")
-
-[node name="GoalCoffeeTableTop" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(20.3, 3.47, -24.8)
-scale = Vector3(2.5, 0.14, 1.05)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="GoalCoffeeTableBase" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(20.3, 3.22, -24.8)
-scale = Vector3(1.35, 0.38, 0.42)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="GoalAccentChair" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(23.2, 3.65, -27)
-scale = Vector3(1.2, 0.58, 1.05)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="GoalAccentChairBack" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(23.2, 4.12, -27.4)
-scale = Vector3(1.2, 0.78, 0.18)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="GoalDisplayPlantPot" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(30.8, 3.35, -28.8)
-mesh = SubResource("PlantPotMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="GoalDisplayPlantLeaves" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(30.8, 3.92, -28.8)
-scale = Vector3(1.25, 1.7, 1.25)
-mesh = SubResource("PlantLeafMesh")
-material_override = SubResource("LeafMaterial")
-
-[node name="GoalPendantShade" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(25.5, 5.35, -26)
-mesh = SubResource("PendantShadeMesh")
-material_override = SubResource("BrassMaterial")
-
-[node name="GoalPendantGlow" type="OmniLight3D" parent="ShowroomFitout"]
-position = Vector3(25.5, 5.08, -26)
-light_color = Color(1, 0.75, 0.45, 1)
-light_energy = 1.0
-omni_range = 7.0
-shadow_enabled = false
-
-[node name="LivingDisplayLabel" type="Label3D" parent="ShowroomFitout"]
-position = Vector3(24.5, 4.55, -29.4)
-text = "WOHNEN  /  LIVING"
-font_size = 30
-outline_size = 6
-modulate = Color(0.95, 0.76, 0.4, 1)
-
-[node name="CheckoutRegisterBase" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(27.5, 4.32, -19)
-scale = Vector3(0.72, 0.22, 0.48)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DarkWoodMaterial")
-
-[node name="CheckoutRegisterScreen" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(27.5, 4.7, -19.12)
-rotation = Vector3(-0.15, 0, 0)
-scale = Vector3(0.62, 0.48, 0.1)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("FurnitureBlueMaterial")
-
-[node name="CheckoutScreenGlow" type="MeshInstance3D" parent="ShowroomFitout"]
-position = Vector3(27.5, 4.7, -19.06)
-scale = Vector3(0.5, 0.34, 0.025)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("DisplayLightMaterial")
-
-[node name="CheckoutLabel" type="Label3D" parent="ShowroomFitout"]
-position = Vector3(28, 5.15, -19)
-text = "KASSE  /  CHECKOUT"
-font_size = 25
-outline_size = 5
-modulate = Color(0.95, 0.76, 0.4, 1)
-
-[node name="StartPlatform" type="StaticBody3D" parent="."]
-position = Vector3(0, -0.25, 0)
-
-[node name="Surface" type="MeshInstance3D" parent="StartPlatform"]
-scale = Vector3(20, 0.5, 18)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StartPlatform"]
-scale = Vector3(20, 0.5, 18)
-shape = SubResource("UnitBlockShape")
-
-[node name="NorthRamp" type="StaticBody3D" parent="."]
-position = Vector3(0, 0.85, -12.5)
-rotation = Vector3(0.2783, 0, 0)
-
-[node name="Surface" type="MeshInstance3D" parent="NorthRamp"]
-scale = Vector3(6, 0.3, 7)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("DisplayWoodMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="NorthRamp"]
-scale = Vector3(6, 0.3, 7)
-shape = SubResource("UnitBlockShape")
-
-[node name="UpperPlateau" type="StaticBody3D" parent="."]
-position = Vector3(0, 1.75, -23)
-
-[node name="Surface" type="MeshInstance3D" parent="UpperPlateau"]
-scale = Vector3(14, 0.5, 14)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("CreamTileMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="UpperPlateau"]
-scale = Vector3(14, 0.5, 14)
-shape = SubResource("UnitBlockShape")
-
-[node name="EastRamp" type="StaticBody3D" parent="."]
-position = Vector3(12.5, 2.45, -23)
-rotation = Vector3(0, 0, 0.109)
-
-[node name="Surface" type="MeshInstance3D" parent="EastRamp"]
-scale = Vector3(11, 0.3, 5)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("DisplayWoodMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="EastRamp"]
-scale = Vector3(11, 0.3, 5)
-shape = SubResource("UnitBlockShape")
-
-[node name="GoalPlateau" type="StaticBody3D" parent="."]
-position = Vector3(25, 2.95, -23)
-
-[node name="Surface" type="MeshInstance3D" parent="GoalPlateau"]
-scale = Vector3(14, 0.5, 14)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("CreamTileMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalPlateau"]
-scale = Vector3(14, 0.5, 14)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartWallLeft" type="StaticBody3D" parent="."]
-position = Vector3(-4, 0.9, -4.5)
-
-[node name="Surface" type="MeshInstance3D" parent="StartWallLeft"]
-scale = Vector3(0.6, 1.8, 7)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StartWallLeft"]
-scale = Vector3(0.6, 1.8, 7)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartWallRight" type="StaticBody3D" parent="."]
-position = Vector3(4, 0.9, -4.5)
-
-[node name="Surface" type="MeshInstance3D" parent="StartWallRight"]
-scale = Vector3(0.6, 1.8, 7)
-mesh = SubResource("UnitBlockMesh")
-material_override = SubResource("StoreWallMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StartWallRight"]
-scale = Vector3(0.6, 1.8, 7)
-shape = SubResource("UnitBlockShape")
-
-[node name="StartBoulder" type="StaticBody3D" parent="."]
-position = Vector3(-7, 0.75, 4)
-
-[node name="Surface" type="MeshInstance3D" parent="StartBoulder"]
-scale = Vector3(1.3, 1.5, 1.1)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StartBoulder"]
-scale = Vector3(1.3, 0.75, 1.1)
-shape = SubResource("RockShape")
-
-[node name="UpperBoulder" type="StaticBody3D" parent="."]
-position = Vector3(-5, 2.75, -22)
-
-[node name="Surface" type="MeshInstance3D" parent="UpperBoulder"]
-scale = Vector3(1.3, 1.5, 1.1)
-mesh = SubResource("DetailBoxMesh")
-material_override = SubResource("WalnutMaterial")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="UpperBoulder"]
-scale = Vector3(1.3, 0.75, 1.1)
-shape = SubResource("RockShape")
-
-[node name="MapDecor" type="Node3D" parent="."]
-
-[node name="StartRockSmall" type="MeshInstance3D" parent="MapDecor"]
-position = Vector3(7, 0.28, 5)
-scale = Vector3(0.5, 0.28, 0.45)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="RampRockLeft" type="MeshInstance3D" parent="MapDecor"]
-position = Vector3(-3.8, 1.25, -13.5)
-scale = Vector3(0.8, 0.55, 0.65)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="UpperRockClusterA" type="MeshInstance3D" parent="MapDecor"]
-position = Vector3(4.5, 2.4, -28)
-scale = Vector3(0.9, 0.4, 0.7)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="UpperRockClusterB" type="MeshInstance3D" parent="MapDecor"]
-position = Vector3(5.5, 2.3, -27.2)
-scale = Vector3(0.55, 0.3, 0.45)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="GoalRock" type="MeshInstance3D" parent="MapDecor"]
-position = Vector3(31, 3.55, -18.5)
-scale = Vector3(0.75, 0.35, 0.6)
-mesh = SubResource("RockMesh")
-material_override = SubResource("TerracottaMaterial")
-
-[node name="GoalZone" type="Area3D" parent="."]
-position = Vector3(29, 3.2, -23)
-collision_layer = 0
-collision_mask = 1
-script = ExtResource("5_checkpoint")
-checkpoint_name = "Rote Flagge"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalZone"]
-position = Vector3(0, 1, 0)
-shape = SubResource("GoalZoneShape")
-
-[node name="FlagPole" type="MeshInstance3D" parent="GoalZone"]
-position = Vector3(0, 1.2, 0)
-mesh = SubResource("FlagPoleMesh")
-
-[node name="Flag" type="MeshInstance3D" parent="GoalZone"]
-position = Vector3(0.42, 2.05, 0)
-mesh = SubResource("GoalFlagMesh")
+[node name="OuterWalls" type="Node3D" parent="."]
+
+[node name="WestWall" type="StaticBody3D" parent="OuterWalls"]
+position = Vector3(-30.2, 6, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="OuterWalls/WestWall"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(0.6, 12, 84.4)
+material_override = SubResource("WallMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OuterWalls/WestWall"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(0.6, 12, 84.4)
+
+[node name="EastWall" type="StaticBody3D" parent="OuterWalls"]
+position = Vector3(30.2, 6, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="OuterWalls/EastWall"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(0.6, 12, 84.4)
+material_override = SubResource("WallMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OuterWalls/EastWall"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(0.6, 12, 84.4)
+
+[node name="SouthWall" type="StaticBody3D" parent="OuterWalls"]
+position = Vector3(0, 6, 42.2)
+
+[node name="Mesh" type="MeshInstance3D" parent="OuterWalls/SouthWall"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(60.4, 12, 0.6)
+material_override = SubResource("WallMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OuterWalls/SouthWall"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(60.4, 12, 0.6)
+
+[node name="NorthWall" type="StaticBody3D" parent="OuterWalls"]
+position = Vector3(0, 6, -42.2)
+
+[node name="Mesh" type="MeshInstance3D" parent="OuterWalls/NorthWall"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(60.4, 12, 0.6)
+material_override = SubResource("WallMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OuterWalls/NorthWall"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(60.4, 12, 0.6)
+
+[node name="LaneDivider1South" type="StaticBody3D" parent="."]
+position = Vector3(-18, 3, -5)
+
+[node name="Mesh" type="MeshInstance3D" parent="LaneDivider1South"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(0.6, 6, 58)
+material_override = SubResource("ShelfMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LaneDivider1South"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(0.6, 6, 58)
+
+[node name="ShelfRailLow" type="MeshInstance3D" parent="LaneDivider1South"]
+position = Vector3(0.38, -2.35, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailMid" type="MeshInstance3D" parent="LaneDivider1South"]
+position = Vector3(0.38, -0.95, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailHigh" type="MeshInstance3D" parent="LaneDivider1South"]
+position = Vector3(0.38, 0.45, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailTop" type="MeshInstance3D" parent="LaneDivider1South"]
+position = Vector3(0.38, 1.85, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="LaneDivider2North" type="StaticBody3D" parent="."]
+position = Vector3(-6, 3, 5)
+
+[node name="Mesh" type="MeshInstance3D" parent="LaneDivider2North"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(0.6, 6, 58)
+material_override = SubResource("ShelfMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LaneDivider2North"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(0.6, 6, 58)
+
+[node name="ShelfRailLow" type="MeshInstance3D" parent="LaneDivider2North"]
+position = Vector3(-0.38, -2.35, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailMid" type="MeshInstance3D" parent="LaneDivider2North"]
+position = Vector3(-0.38, -0.95, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailHigh" type="MeshInstance3D" parent="LaneDivider2North"]
+position = Vector3(-0.38, 0.45, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailTop" type="MeshInstance3D" parent="LaneDivider2North"]
+position = Vector3(-0.38, 1.85, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="LaneDivider3South" type="StaticBody3D" parent="."]
+position = Vector3(6, 3, -5)
+
+[node name="Mesh" type="MeshInstance3D" parent="LaneDivider3South"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(0.6, 6, 58)
+material_override = SubResource("ShelfMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LaneDivider3South"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(0.6, 6, 58)
+
+[node name="ShelfRailLow" type="MeshInstance3D" parent="LaneDivider3South"]
+position = Vector3(0.38, -2.35, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailMid" type="MeshInstance3D" parent="LaneDivider3South"]
+position = Vector3(0.38, -0.95, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailHigh" type="MeshInstance3D" parent="LaneDivider3South"]
+position = Vector3(0.38, 0.45, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailTop" type="MeshInstance3D" parent="LaneDivider3South"]
+position = Vector3(0.38, 1.85, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="LaneDivider4North" type="StaticBody3D" parent="."]
+position = Vector3(18, 3, 5)
+
+[node name="Mesh" type="MeshInstance3D" parent="LaneDivider4North"]
+mesh = SubResource("UnitBoxMesh")
+scale = Vector3(0.6, 6, 58)
+material_override = SubResource("ShelfMaterial")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LaneDivider4North"]
+shape = SubResource("UnitBoxShape")
+scale = Vector3(0.6, 6, 58)
+
+[node name="ShelfRailLow" type="MeshInstance3D" parent="LaneDivider4North"]
+position = Vector3(-0.38, -2.35, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailMid" type="MeshInstance3D" parent="LaneDivider4North"]
+position = Vector3(-0.38, -0.95, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailHigh" type="MeshInstance3D" parent="LaneDivider4North"]
+position = Vector3(-0.38, 0.45, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="ShelfRailTop" type="MeshInstance3D" parent="LaneDivider4North"]
+position = Vector3(-0.38, 1.85, 0)
+scale = Vector3(0.14, 0.12, 57.8)
+mesh = SubResource("ShelfRailMesh")
+material_override = SubResource("ShelfMaterial")
+
+[node name="StartShowroomDisplay" parent="." instance=ExtResource("10_display")]
+position = Vector3(-24, 0, -13)
+
+[node name="MiddleShowroomDisplay" parent="." instance=ExtResource("10_display")]
+position = Vector3(-12, 2.5, 21)
+
+[node name="LowerShowroomDisplay" parent="." instance=ExtResource("10_display")]
+position = Vector3(0, 1.5, -17)
+
+[node name="UpperShowroomDisplay" parent="." instance=ExtResource("10_display")]
+position = Vector3(12, 4, 20)
+
+[node name="ExitShowroomDisplay" parent="." instance=ExtResource("10_display")]
+position = Vector3(24, 5, -14)
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=2118346341 groups=["player"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
-script = ExtResource("1_ig7tw")
+position = Vector3(-27, 0, 29)
+script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1898230759]
 position = Vector3(0, 0.9, 0)
 shape = SubResource("PlayerShape")
 
 [node name="Camera3D" type="Camera3D" parent="Player" unique_id=548091612]
-position = Vector3(0, 4.5, 5.5)
-rotation = Vector3(-0.685, 0, 0)
+position = Vector3(0, 8.5, 7.5)
+rotation = Vector3(-0.837758, 0, 0)
+fov = 60.0
 
 [node name="VisualRoot" type="Node3D" parent="Player"]
 
 [node name="Torso" type="MeshInstance3D" parent="Player/VisualRoot"]
 position = Vector3(0, 1.05, 0)
-mesh = SubResource("TorsoMesh")
+mesh = SubResource("PlayerTorsoMesh")
 
 [node name="Head" type="MeshInstance3D" parent="Player/VisualRoot"]
 position = Vector3(0, 1.68, 0)
-mesh = SubResource("HeadMesh")
+mesh = SubResource("PlayerHeadMesh")
+
+[node name="Hair" type="MeshInstance3D" parent="Player/VisualRoot"]
+position = Vector3(0, 1.83, 0)
+scale = Vector3(1, 0.55, 1)
+mesh = SubResource("PlayerHairMesh")
 
 [node name="LeftArmPivot" type="Node3D" parent="Player/VisualRoot"]
 position = Vector3(-0.4, 1.36, 0)
 
 [node name="LeftArm" type="MeshInstance3D" parent="Player/VisualRoot/LeftArmPivot"]
-position = Vector3(0, -0.31, 0)
-mesh = SubResource("LimbMesh")
-material_override = SubResource("SkinMaterial")
+position = Vector3(0, -0.26, 0)
+mesh = SubResource("PlayerArmMesh")
+
+[node name="LeftHand" type="MeshInstance3D" parent="Player/VisualRoot/LeftArmPivot"]
+position = Vector3(0, -0.58, 0)
+mesh = SubResource("PlayerHeadMesh")
 
 [node name="RightArmPivot" type="Node3D" parent="Player/VisualRoot"]
 position = Vector3(0.4, 1.36, 0)
 
 [node name="RightArm" type="MeshInstance3D" parent="Player/VisualRoot/RightArmPivot"]
-position = Vector3(0, -0.31, 0)
-mesh = SubResource("LimbMesh")
-material_override = SubResource("SkinMaterial")
+position = Vector3(0, -0.26, 0)
+mesh = SubResource("PlayerArmMesh")
+
+[node name="RightHand" type="MeshInstance3D" parent="Player/VisualRoot/RightArmPivot"]
+position = Vector3(0, -0.58, 0)
+mesh = SubResource("PlayerHeadMesh")
 
 [node name="LeftLegPivot" type="Node3D" parent="Player/VisualRoot"]
 position = Vector3(-0.16, 0.48, 0)
 
 [node name="LeftLeg" type="MeshInstance3D" parent="Player/VisualRoot/LeftLegPivot"]
 position = Vector3(0, -0.24, 0)
-mesh = SubResource("LegMesh")
+mesh = SubResource("PlayerLegMesh")
+
+[node name="LeftFoot" type="MeshInstance3D" parent="Player/VisualRoot/LeftLegPivot"]
+position = Vector3(0, -0.41, 0.04)
+mesh = SubResource("PlayerShoeMesh")
 
 [node name="RightLegPivot" type="Node3D" parent="Player/VisualRoot"]
 position = Vector3(0.16, 0.48, 0)
 
 [node name="RightLeg" type="MeshInstance3D" parent="Player/VisualRoot/RightLegPivot"]
 position = Vector3(0, -0.24, 0)
-mesh = SubResource("LegMesh")
+mesh = SubResource("PlayerLegMesh")
+
+[node name="RightFoot" type="MeshInstance3D" parent="Player/VisualRoot/RightLegPivot"]
+position = Vector3(0, -0.41, 0.04)
+mesh = SubResource("PlayerShoeMesh")
 
 [node name="HUD" type="CanvasLayer" parent="."]
-script = ExtResource("3_hud")
+script = ExtResource("2_hud")
 
-[node name="ChasingChair" parent="." instance=ExtResource("4_chair")]
-position = Vector3(-6, 0, -5)
+[node name="StartCheckpoint" type="Area3D" parent="."]
+position = Vector3(-27, 0, 29)
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("3_checkpoint")
+checkpoint_name = "Start"
 
-[node name="FlyingArmchair" parent="." instance=ExtResource("6_armchair")]
-position = Vector3(1.5, 1, -12.5)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StartCheckpoint"]
+position = Vector3(0, 1, 0)
+shape = SubResource("CheckpointShape")
 
-[node name="ExpandingSofa" parent="." instance=ExtResource("7_sofa")]
-position = Vector3(4, 2, -23)
+[node name="MiddleCheckpoint" type="Area3D" parent="."]
+position = Vector3(-12, 2.5, 0)
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("3_checkpoint")
+checkpoint_name = "Middle"
 
-[node name="SpinningStool" parent="." instance=ExtResource("8_stool")]
-position = Vector3(24, 3.2, -23)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MiddleCheckpoint"]
+position = Vector3(0, 1, 0)
+shape = SubResource("CheckpointShape")
 
-[node name="FoldingTrapChair" parent="." instance=ExtResource("9_trap_chair")]
-position = Vector3(0, 0, -8)
+[node name="ExitZone" type="Area3D" parent="."]
+position = Vector3(24, 5, 31)
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ExitZone"]
+position = Vector3(0, 1, 0)
+shape = SubResource("ExitShape")
+
+[node name="FlagPole" type="MeshInstance3D" parent="ExitZone"]
+position = Vector3(0, 1.2, 0)
+mesh = SubResource("FlagPoleMesh")
+
+[node name="Flag" type="MeshInstance3D" parent="ExitZone"]
+position = Vector3(0.42, 2.05, 0)
+mesh = SubResource("ExitFlagMesh")
+
+[node name="ChasingChairWest" parent="." instance=ExtResource("4_chair")]
+position = Vector3(-12, 2.5, 10)
+
+[node name="ChasingChairEast" parent="." instance=ExtResource("4_chair")]
+position = Vector3(12, 4, 0)
+
+[node name="FlyingArmchairExit" parent="." instance=ExtResource("5_armchair")]
+position = Vector3(24, 5, 12)

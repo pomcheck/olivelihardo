@@ -1,0 +1,158 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Shader" path="res://shaders/toon_cel.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://textures/upholstery_weave.svg" id="2_fabric"]
+[ext_resource type="Texture2D" path="res://textures/oak_grain.svg" id="3_wood"]
+
+[sub_resource type="ShaderMaterial" id="UpholsteryMaterial"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_color = Color(0.16, 0.39, 0.48, 1)
+shader_parameter/albedo_texture = ExtResource("2_fabric")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(3, 3)
+
+[sub_resource type="ShaderMaterial" id="WoodMaterial"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_color = Color(0.69, 0.43, 0.22, 1)
+shader_parameter/albedo_texture = ExtResource("3_wood")
+shader_parameter/use_albedo_texture = true
+shader_parameter/texture_scale = Vector2(2, 2)
+
+[sub_resource type="ShaderMaterial" id="LeafMaterial"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_color = Color(0.2, 0.42, 0.24, 1)
+shader_parameter/use_albedo_texture = false
+
+[sub_resource type="ShaderMaterial" id="LampMaterial"]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_color = Color(0.9, 0.72, 0.42, 1)
+shader_parameter/use_albedo_texture = false
+
+[sub_resource type="BoxMesh" id="BoxMesh"]
+size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="SofaShape"]
+size = Vector3(2.5, 1.25, 1.2)
+
+[sub_resource type="BoxShape3D" id="TableShape"]
+size = Vector3(1.5, 0.8, 1.1)
+
+[sub_resource type="CylinderMesh" id="LampStemMesh"]
+top_radius = 0.045
+bottom_radius = 0.06
+height = 2.2
+
+[sub_resource type="SphereMesh" id="LampShadeMesh"]
+radius = 0.42
+height = 0.5
+
+[sub_resource type="CapsuleShape3D" id="LampShape"]
+radius = 0.14
+height = 2.3
+
+[sub_resource type="CylinderMesh" id="PlantPotMesh"]
+top_radius = 0.38
+bottom_radius = 0.28
+height = 0.55
+
+[sub_resource type="SphereMesh" id="PlantLeavesMesh"]
+radius = 0.68
+height = 1.7
+
+[sub_resource type="CylinderShape3D" id="PlantShape"]
+radius = 0.38
+height = 0.55
+
+[node name="ShowroomDisplay" type="Node3D"]
+
+[node name="Sofa" type="StaticBody3D" parent="."]
+position = Vector3(-1.35, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sofa"]
+position = Vector3(0, 0.62, 0)
+shape = SubResource("SofaShape")
+
+[node name="Seat" type="MeshInstance3D" parent="Sofa"]
+position = Vector3(0, 0.48, 0)
+scale = Vector3(2.4, 0.48, 1.1)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("UpholsteryMaterial")
+
+[node name="Backrest" type="MeshInstance3D" parent="Sofa"]
+position = Vector3(0, 0.98, -0.46)
+scale = Vector3(2.4, 0.9, 0.18)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("UpholsteryMaterial")
+
+[node name="LeftArm" type="MeshInstance3D" parent="Sofa"]
+position = Vector3(-1.16, 0.68, 0)
+scale = Vector3(0.2, 0.7, 1.12)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("UpholsteryMaterial")
+
+[node name="RightArm" type="MeshInstance3D" parent="Sofa"]
+position = Vector3(1.16, 0.68, 0)
+scale = Vector3(0.2, 0.7, 1.12)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("UpholsteryMaterial")
+
+[node name="SofaBase" type="MeshInstance3D" parent="Sofa"]
+position = Vector3(0, 0.19, 0)
+scale = Vector3(2.25, 0.25, 0.95)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="CoffeeTable" type="StaticBody3D" parent="."]
+position = Vector3(2.25, 0, 0.55)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CoffeeTable"]
+position = Vector3(0, 0.4, 0)
+shape = SubResource("TableShape")
+
+[node name="Top" type="MeshInstance3D" parent="CoffeeTable"]
+position = Vector3(0, 0.72, 0)
+scale = Vector3(1.6, 0.12, 1.15)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="Base" type="MeshInstance3D" parent="CoffeeTable"]
+position = Vector3(0, 0.35, 0)
+scale = Vector3(0.22, 0.7, 0.22)
+mesh = SubResource("BoxMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="FloorLamp" type="StaticBody3D" parent="."]
+position = Vector3(-2.75, 0, -1.15)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FloorLamp"]
+position = Vector3(0, 1.15, 0)
+shape = SubResource("LampShape")
+
+[node name="Stem" type="MeshInstance3D" parent="FloorLamp"]
+position = Vector3(0, 1.1, 0)
+mesh = SubResource("LampStemMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="Shade" type="MeshInstance3D" parent="FloorLamp"]
+position = Vector3(0, 2.15, 0)
+scale = Vector3(1, 0.72, 1)
+mesh = SubResource("LampShadeMesh")
+material_override = SubResource("LampMaterial")
+
+[node name="PottedPlant" type="StaticBody3D" parent="."]
+position = Vector3(2.55, 0, -1.25)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PottedPlant"]
+position = Vector3(0, 0.28, 0)
+shape = SubResource("PlantShape")
+
+[node name="Pot" type="MeshInstance3D" parent="PottedPlant"]
+position = Vector3(0, 0.28, 0)
+mesh = SubResource("PlantPotMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="Leaves" type="MeshInstance3D" parent="PottedPlant"]
+position = Vector3(0, 1.1, 0)
+scale = Vector3(0.78, 0.88, 0.78)
+mesh = SubResource("PlantLeavesMesh")
+material_override = SubResource("LeafMaterial")

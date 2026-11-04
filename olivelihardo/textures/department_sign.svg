@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="256" viewBox="0 0 640 256">
+  <rect width="640" height="256" rx="22" fill="#f4ead6"/>
+  <path d="M0 0h640v42H0z" fill="#28736e"/>
+  <path d="M22 232h596" stroke="#c28b56" stroke-width="12"/>
+  <text x="320" y="118" text-anchor="middle" fill="#173f4a" font-family="sans-serif" font-size="48" font-weight="900" letter-spacing="3">NEXT DEPARTMENT</text>
+  <text x="320" y="184" text-anchor="middle" fill="#28736e" font-family="sans-serif" font-size="34" font-weight="800">FOLLOW THE COLOURED FLOOR ARROWS</text>
+  <path d="M560 80l50 48-50 48v-30h-68v-36h68z" fill="#e87349"/>
+</svg>

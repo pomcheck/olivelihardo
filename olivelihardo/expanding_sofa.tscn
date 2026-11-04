@@ -1,12 +1,22 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://expanding_sofa.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://textures/upholstery_weave.svg" id="2_fabric"]
+[ext_resource type="Texture2D" path="res://textures/oak_grain.svg" id="3_wood"]
 
 [sub_resource type="StandardMaterial3D" id="CushionMaterial"]
 albedo_color = Color(0.24, 0.43, 0.42, 1)
+albedo_texture = ExtResource("2_fabric")
+uv1_scale = Vector3(4, 4, 4)
+roughness = 0.96
+diffuse_mode = 3
 
 [sub_resource type="StandardMaterial3D" id="WoodMaterial"]
 albedo_color = Color(0.29, 0.17, 0.1, 1)
+albedo_texture = ExtResource("3_wood")
+uv1_scale = Vector3(2, 2, 2)
+roughness = 0.62
+diffuse_mode = 3
 
 [sub_resource type="BoxMesh" id="FurnitureMesh"]
 material = SubResource("CushionMaterial")
@@ -54,6 +64,18 @@ position = Vector3(0, 0.12, 0)
 scale = Vector3(1.5, 0.24, 0.8)
 mesh = SubResource("FurnitureMesh")
 material_override = SubResource("WoodMaterial")
+
+[node name="ThrowPillowLeft" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.48, 0.82, 0.1)
+rotation = Vector3(0.12, 0, -0.1)
+scale = Vector3(0.62, 0.32, 0.45)
+mesh = SubResource("FurnitureMesh")
+
+[node name="ThrowPillowRight" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.48, 0.82, 0.1)
+rotation = Vector3(0.12, 0, 0.1)
+scale = Vector3(0.62, 0.32, 0.45)
+mesh = SubResource("FurnitureMesh")
 
 [node name="TouchArea" type="Area3D" parent="."]
 collision_layer = 0

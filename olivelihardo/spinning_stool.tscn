@@ -1,13 +1,19 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://spinning_stool.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://textures/upholstery_weave.svg" id="2_fabric"]
 
 [sub_resource type="StandardMaterial3D" id="SeatMaterial"]
 albedo_color = Color(0.83, 0.48, 0.12, 1)
+albedo_texture = ExtResource("2_fabric")
+uv1_scale = Vector3(4, 4, 4)
+roughness = 0.95
+diffuse_mode = 3
 
 [sub_resource type="StandardMaterial3D" id="MetalMaterial"]
 albedo_color = Color(0.2, 0.23, 0.25, 1)
 metallic = 0.65
+diffuse_mode = 3
 
 [sub_resource type="CylinderMesh" id="SeatMesh"]
 material = SubResource("SeatMaterial")

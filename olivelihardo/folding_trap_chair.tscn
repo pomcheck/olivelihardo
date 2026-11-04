@@ -1,13 +1,19 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://folding_trap_chair.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://textures/upholstery_weave.svg" id="2_fabric"]
 
 [sub_resource type="StandardMaterial3D" id="SeatMaterial"]
 albedo_color = Color(0.62, 0.16, 0.12, 1)
+albedo_texture = ExtResource("2_fabric")
+uv1_scale = Vector3(4, 4, 4)
+roughness = 0.95
+diffuse_mode = 3
 
 [sub_resource type="StandardMaterial3D" id="FrameMaterial"]
 albedo_color = Color(0.16, 0.18, 0.2, 1)
 metallic = 0.5
+diffuse_mode = 3
 
 [sub_resource type="BoxMesh" id="SeatMesh"]
 material = SubResource("SeatMaterial")

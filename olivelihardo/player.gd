@@ -4,6 +4,7 @@ signal score_updated(score: int, survival_time: float)
 signal damage_taken(amount: int)
 signal health_changed(current_health: int, max_health: int)
 signal player_died(final_score: int, survival_time: float)
+signal death_started
 signal checkpoint_reached(checkpoint_name: String)
 signal respawned(checkpoint_name: String)
 signal death_count_changed(death_count: int)
@@ -42,6 +43,7 @@ var _active_emote: StringName = &""
 var _emote_time: float = 0.0
 var _facing_yaw: float = 0.0
 var _spin_yaw_offset: float = 0.0
+var _turn_lean: float = 0.0
 
 
 func _ready() -> void:
@@ -80,6 +82,9 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if _game_over:
 		return
+	if _respawning:
+		velocity = Vector3.ZERO
+		return
 
 	if not is_on_floor():
 		velocity += get_gravity() * delta
@@ -103,7 +108,9 @@ func _physics_process(delta: float) -> void:
 			desired_yaw,
 			minf(ROTATION_SPEED * delta, 1.0)
 		)
-	_update_run_animation(delta, direction != Vector3.ZERO and is_on_floor() and not _is_sneaking)
+	var horizontal_speed: float = Vector2(velocity.x, velocity.z).length()
+	var is_moving: bool = horizontal_speed > 0.1 and is_on_floor()
+	_update_run_animation(delta, is_moving and not _is_sneaking)
 	visual_root.rotation.y = _facing_yaw + _spin_yaw_offset
 
 	var current_speed: float = SNEAK_SPEED if _is_sneaking else SPEED
@@ -130,7 +137,10 @@ func take_damage(amount: int) -> void:
 		death_count += 1
 		death_count_changed.emit(death_count)
 		_respawning = true
-		call_deferred("_respawn_at_checkpoint")
+		velocity = Vector3.ZERO
+		SoundManager.play_sfx(&"hit")
+		flash_damage()
+		death_started.emit()
 
 
 func set_checkpoint(checkpoint_position: Vector3, checkpoint_name: String) -> void:
@@ -143,13 +153,41 @@ func set_checkpoint(checkpoint_position: Vector3, checkpoint_name: String) -> vo
 	checkpoint_reached.emit(_checkpoint_name)
 
 
-func _respawn_at_checkpoint() -> void:
+func respawn_at_checkpoint() -> void:
 	global_position = _checkpoint_position if _has_checkpoint else _spawn_position
 	velocity = Vector3.ZERO
 	health = max_health
 	_respawning = false
 	health_changed.emit(health, max_health)
 	respawned.emit(_checkpoint_name)
+	SoundManager.play_sfx(&"respawn")
+
+
+func flash_damage() -> void:
+	var overlay_material: StandardMaterial3D = StandardMaterial3D.new()
+	overlay_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	overlay_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	overlay_material.albedo_color = Color(1.0, 0.04, 0.02, 0.72)
+	_set_damage_overlay(visual_root, overlay_material)
+	var flash_tween: Tween = create_tween()
+	flash_tween.tween_property(overlay_material, "albedo_color:a", 0.0, 0.18)
+	flash_tween.tween_callback(_clear_damage_overlay.bind(visual_root))
+
+
+func _set_damage_overlay(node: Node, overlay_material: StandardMaterial3D) -> void:
+	if node is MeshInstance3D:
+		(node as MeshInstance3D).material_overlay = overlay_material
+	for child: Node in node.get_children():
+		_set_damage_overlay(child, overlay_material)
+
+
+func _clear_damage_overlay(node: Node) -> void:
+	if not is_instance_valid(node):
+		return
+	if node is MeshInstance3D:
+		(node as MeshInstance3D).material_overlay = null
+	for child: Node in node.get_children():
+		_clear_damage_overlay(child)
 
 
 func game_over() -> void:
@@ -191,7 +229,8 @@ func _update_run_animation(delta: float, is_running: bool) -> void:
 		right_leg_pivot.rotation.x = -swing
 		left_arm_pivot.rotation.x = -swing * 0.65
 		right_arm_pivot.rotation.x = swing * 0.65
-		visual_root.position.y = -0.22 if _is_sneaking else absf(sin(_run_cycle * 2.0)) * 0.045
+		var speed_factor: float = clampf(Vector2(velocity.x, velocity.z).length() / SPEED, 0.0, 1.0)
+		visual_root.position.y = -0.22 if _is_sneaking else absf(sin(_run_cycle * 2.0)) * 0.075 * speed_factor
 	else:
 		var recovery: float = minf(delta * 10.0, 1.0)
 		left_leg_pivot.rotation.x = lerpf(left_leg_pivot.rotation.x, 0.0, recovery)
@@ -199,6 +238,8 @@ func _update_run_animation(delta: float, is_running: bool) -> void:
 		left_arm_pivot.rotation.x = lerpf(left_arm_pivot.rotation.x, 0.0, recovery)
 		right_arm_pivot.rotation.x = lerpf(right_arm_pivot.rotation.x, 0.0, recovery)
 		visual_root.position.y = lerpf(visual_root.position.y, -0.22 if _is_sneaking else 0.0, recovery)
+	_turn_lean = lerpf(_turn_lean, -clampf(velocity.x * 0.035, -0.12, 0.12), minf(delta * 8.0, 1.0))
+	visual_root.rotation.z = _turn_lean
 
 
 func _update_dance_animation(delta: float) -> void:

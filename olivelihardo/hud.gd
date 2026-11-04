@@ -8,9 +8,14 @@ var _start_button: Button
 var _resume_button: Button
 var _restart_button: Button
 var _emote_overlay: ColorRect
+var _death_flash: ColorRect
+var _death_fade: ColorRect
 var _player: CharacterBody3D
 var _hovered_emote: StringName = &""
 var _has_started: bool = false
+var _death_sequence_active: bool = false
+var _camera_rest_position: Vector3 = Vector3.ZERO
+var _camera_shake_active: bool = false
 
 
 func _ready() -> void:
@@ -22,9 +27,16 @@ func _ready() -> void:
 	_build_interface()
 	if _player != null:
 		_player.connect("death_count_changed", Callable(self, "_on_death_count_changed"))
+		_player.connect("death_started", Callable(self, "_play_death_sequence"))
 		_on_death_count_changed(int(_player.get("death_count")))
-	_show_menu(true)
-	get_tree().paused = true
+	if get_tree().has_meta(&"restart_after_death"):
+		get_tree().remove_meta(&"restart_after_death")
+		_has_started = true
+		_menu_overlay.visible = false
+		get_tree().paused = false
+	else:
+		_show_menu(true)
+		get_tree().paused = true
 
 
 func _build_interface() -> void:
@@ -94,6 +106,83 @@ func _build_interface() -> void:
 	_restart_button.pressed.connect(_restart_game)
 	content.add_child(_restart_button)
 	_build_emote_wheel(hud_root)
+	_death_flash = _create_screen_layer(hud_root, Color(1.0, 0.02, 0.015, 0.0))
+	_death_fade = _create_screen_layer(hud_root, Color(0.0, 0.0, 0.0, 0.0))
+
+
+func _create_screen_layer(hud_root: Control, initial_color: Color) -> ColorRect:
+	var layer: ColorRect = ColorRect.new()
+	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.color = initial_color
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.visible = false
+	hud_root.add_child(layer)
+	return layer
+
+
+func _play_death_sequence() -> void:
+	if _death_sequence_active:
+		return
+	_death_sequence_active = true
+	_death_flash.visible = true
+	_death_flash.color.a = 0.82
+	var flash_tween: Tween = create_tween()
+	flash_tween.tween_property(_death_flash, "color:a", 0.0, 0.15)
+	flash_tween.tween_callback(_hide_death_flash)
+	_start_camera_shake()
+
+	await get_tree().create_timer(0.15).timeout
+	_death_fade.visible = true
+	_death_fade.color.a = 0.0
+	var fade_out: Tween = create_tween()
+	fade_out.tween_property(_death_fade, "color:a", 1.0, 0.4)
+	await fade_out.finished
+
+	get_tree().set_meta(&"restart_after_death", true)
+	get_tree().paused = false
+	var reload_error: Error = get_tree().reload_current_scene()
+	if reload_error != OK:
+		get_tree().remove_meta(&"restart_after_death")
+		push_error("HUD: Die Szene konnte nach dem Tod nicht neu geladen werden (%s)." % error_string(reload_error))
+		if _player != null and _player.has_method("respawn_at_checkpoint"):
+			_player.call("respawn_at_checkpoint")
+		var recovery_tween: Tween = create_tween()
+		recovery_tween.tween_property(_death_fade, "color:a", 0.0, 0.4)
+		await recovery_tween.finished
+		_death_fade.visible = false
+		_death_sequence_active = false
+
+
+func _hide_death_flash() -> void:
+	_death_flash.visible = false
+
+
+func _start_camera_shake() -> void:
+	if _player == null:
+		return
+	var camera: Camera3D = _player.get_node_or_null("Camera3D") as Camera3D
+	if camera == null or _camera_shake_active:
+		return
+	_camera_rest_position = camera.position
+	_camera_shake_active = true
+	var shake_tween: Tween = create_tween()
+	shake_tween.tween_method(_apply_camera_shake.bind(camera), 0.0, 1.0, 0.32)
+	shake_tween.tween_callback(_finish_camera_shake.bind(camera))
+
+
+func _apply_camera_shake(progress: float, camera: Camera3D) -> void:
+	var strength: float = (1.0 - progress) * 0.2
+	camera.position = _camera_rest_position + Vector3(
+		sin(progress * 79.0) * strength,
+		cos(progress * 61.0) * strength * 0.6,
+		0.0
+	)
+
+
+func _finish_camera_shake(camera: Camera3D) -> void:
+	if is_instance_valid(camera):
+		camera.position = _camera_rest_position
+	_camera_shake_active = false
 
 
 func _create_menu_button(button_text: String) -> Button:
@@ -215,10 +304,10 @@ func _show_menu(is_start_menu: bool) -> void:
 	_restart_button.visible = not is_start_menu
 	if is_start_menu:
 		_menu_title.text = "FURNITURE HATES YOU"
-		_menu_subtitle.text = "A quiet trip through the showroom. Probably."
+		_menu_subtitle.text = "A quiet trip through the showroom. Probably.\n\nWASD: MOVE    SPACE: JUMP\nSHIFT: SNEAK    F: EMOTES    ESC: PAUSE"
 	else:
 		_menu_title.text = "SHOWROOM PAUSED"
-		_menu_subtitle.text = "Everything is frozen. Take a breather."
+		_menu_subtitle.text = "Everything is frozen. Take a breather.\n\nWASD: MOVE    SPACE: JUMP\nSHIFT: SNEAK    F: EMOTES    ESC: RESUME"
 
 
 func _start_game() -> void:

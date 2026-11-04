@@ -1,13 +1,27 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://chasing_chair.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://textures/upholstery_weave.svg" id="2_fabric"]
+[ext_resource type="Texture2D" path="res://textures/oak_grain.svg" id="3_wood"]
 
 [sub_resource type="StandardMaterial3D" id="SeatMaterial"]
 albedo_color = Color(0.08, 0.24, 0.62, 1)
+albedo_texture = ExtResource("2_fabric")
+uv1_scale = Vector3(4, 4, 4)
+roughness = 0.95
+diffuse_mode = 3
 
 [sub_resource type="StandardMaterial3D" id="FrameMaterial"]
 albedo_color = Color(0.12, 0.14, 0.17, 1)
 metallic = 0.55
+diffuse_mode = 3
+
+[sub_resource type="StandardMaterial3D" id="WoodMaterial"]
+albedo_color = Color(0.62, 0.43, 0.25, 1)
+albedo_texture = ExtResource("3_wood")
+uv1_scale = Vector3(2, 2, 2)
+roughness = 0.58
+diffuse_mode = 3
 
 [sub_resource type="BoxMesh" id="SeatMesh"]
 material = SubResource("SeatMaterial")
@@ -49,6 +63,18 @@ mesh = SubResource("SeatMesh")
 [node name="Backrest" type="MeshInstance3D" parent="VisualRoot"]
 position = Vector3(0, 1.08, -0.34)
 mesh = SubResource("BackMesh")
+
+[node name="BackrestButtonLeft" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.2, 1.08, -0.245)
+scale = Vector3(0.07, 0.07, 0.025)
+mesh = SubResource("SeatMesh")
+material_override = SubResource("WoodMaterial")
+
+[node name="BackrestButtonRight" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.2, 1.08, -0.245)
+scale = Vector3(0.07, 0.07, 0.025)
+mesh = SubResource("SeatMesh")
+material_override = SubResource("WoodMaterial")
 
 [node name="CentralPost" type="MeshInstance3D" parent="VisualRoot"]
 position = Vector3(0, 0.3, 0)

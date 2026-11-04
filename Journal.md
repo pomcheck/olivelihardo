@@ -78,3 +78,57 @@ Vorgeschlagener Commit: `feat: add start pause menus death counter and player ru
 F öffnet ein pausierendes Emote-Rad mit Groove-, Spin-, Wave- und Bounce-Tanz; die Auswahl spielt eine kurze Player-Animation ab. Linke Shift-Taste aktiviert den Schleichmodus mit reduziertem Tempo, abgesenkter Figur und kleinerer Kapsel.
 
 Vorgeschlagener Commit: `feat: add dance emote wheel and left-shift sneaking`
+
+## 04-11-2026 - Terrassen, Treppen und Checkpoint-Route
+
+Das Showroom-Level erhält eine begehbare Terrasse auf 2,5 m, eine erhöhte Zielterrasse auf 5 m, passgenaue Box-Kollisionen für Stufen sowie eine flachere Parallelrampe. Hohe Aussenwände und kollidierende Lagerregale/Schränke teilen die oberen Wege, bleiben aber unter der erhöhten Verfolgerkamera. Eingangs-, Schlafzimmer- und Kassenbereiche speichern getrennte Respawnpunkte.
+
+Vorgeschlagener Commit: `feat: add tiered showroom terraces and checkpoint routes`
+
+## 04-11-2026 - Spielerfigur, Toon-Look und Animation
+
+Der Player hat nun dunkle Haut, Haare, blaues T-Shirt, Hose und bodenbündige Schuhe. Die prozedurale Laufanimation richtet Wippen und Neigung an der tatsächlichen Bewegung aus. `shaders/cel_shader.gdshader` stellt ein dreistufiges Godot-4-Lichtmodell bereit; die sichtbaren Level- und Möbelmaterialien verwenden Toon-Diffuse-Shading.
+
+Vorgeschlagener Commit: `feat: add cel-shaded showroom and procedural player animation`
+
+## 04-11-2026 - Prozedurales Audio und Death-Flow
+
+`SoundManager` generiert Aufwach-/Angriffsgeräusche sowie Treffer- und Respawn-Sounds aus WAV-Samples; Schritte bleiben bewusst stumm. Treffer starten einen roten Bildschirm- und Figuren-Flash sowie Kamera-Shake und Fade-to-Black. Beim Tod wird die gesamte Hauptszene neu geladen.
+
+Vorgeschlagener Commit: `feat: add procedural showroom audio and checkpoint death sequence`
+
+## 04-11-2026 - Wechselnder MP3-Soundtrack
+
+Der SoundManager spielt die vorhandenen Goat Simulator- und Spider-Man-MP3s nacheinander ab. Nach jedem Titel startet der jeweils andere; nach dem zweiten Titel beginnt die Playlist erneut.
+
+Vorgeschlagener Commit: `feat: add alternating looping mp3 soundtrack`
+
+## 04-11-2026 - Linearer Parcours und Level-Reset
+
+Die überladene Showroom-Geometrie wurde durch einen offenen, 60 m langen und 15 m breiten Parcours ersetzt. Drei klar getrennte Plateaus auf Y=0, 2,5 und 5 m sind mit 20° geneigten, 15 m breiten Rampen verbunden. Hohe Aussenwände begrenzen das Areal ohne Decke; zwei gezielt versetzte Lagerregale bilden im mittleren Abschnitt breite Ausweichkorridore. Start- und Mittel-Checkpoints, eine rote Exit-Markierung und drei schlafende Möbelgegner strukturieren die Route. Player, HUD und Autoload-Konfiguration bleiben erhalten.
+
+Vorgeschlagener Commit: `refactor: rebuild level as an open linear furniture course`
+
+## 04-11-2026 - Breiter Schlangenparcours und sanftere Toon-Schatten
+
+Der Parcours wurde auf fünf je 12 m breite Längs-Unterlevel innerhalb einer rund 60 m breiten Arena erweitert. Hohe Längswände lassen den Weg abwechselnd an den Enden wechseln; vier Rampen führen dabei durch die Höhen 0, 2,5, 1,5, 4 und 5 m. Die Außenwände schließen bündig an die Plattformkanten an. Die Verfolgerkamera bleibt oberhalb der Wände und wird innerhalb der Arena gehalten. Der Cel-Shader mischt nun eine warme Umgebungsaufhellung in die abgestuften direkten Lichtbänder, damit Schatten nicht mehr pechschwarz erscheinen.
+
+Vorgeschlagener Commit: `feat: widen showroom and add serpentine multi-height route`
+
+## 04-11-2026 - Vollständiger Level-Neustart nach dem Tod
+
+Nach dem Death-Flash und Fade-to-Black wird die komplette Hauptszene neu geladen. Dadurch starten Spieler, Checkpoints, Möbelgegner und Levelzustand wieder am Ausgangspunkt; das Spiel setzt ohne erneuten Startmenü-Klick fort.
+
+Vorgeschlagener Commit: `feat: restart the full level after player death`
+
+## 04-11-2026 - Isometrische Kamera, Showroom-Texturen und Toon-Materialien
+
+Die Kamera ist wieder schräg hinter dem Spieler verankert (Offset 0/8,5/7,5 m, Neigung -48°, FOV 60°); der alte senkrechte Kamera-Override wurde entfernt. Die Außenwände reichen an den Stirnseiten über den Kameraversatz hinaus. Fliesen- und Parketttexturen strukturieren die abwechselnden Hallenbereiche, Holzleisten gliedern die Regalwände, und fünf kollidierende Möbel-Displays bringen Sofas, Tische, Lampen und Pflanzen zurück. Ein neuer Toon-Cel-Shader ergänzt weiche Lichtbänder, Rim-Light und subtile dunkle Kanten; Player, Displays und angreifende Möbel verwenden ihn.
+
+Vorgeschlagener Commit: `fix: restore angled showroom camera textures and toon materials`
+
+## 04-11-2026 - Rampenzugänge und Showroom-Ausstattung
+
+Der Spawn liegt jetzt direkt vor der ersten Rampe; ein deutliches Willkommensportal, Pfeilmarkierungen und Abteilungsschilder machen den Einstieg klar. Alle vier Rampen sind deutlich länger und flacher; die höher gelegenen Plattformen sind an den Rampenöffnungen passend ausgespart, damit keine Bodenkollision den Aufstieg blockiert. Seitliche Leitplanken schützen vor dem Herunterfallen. Zusätzliche Wohnzimmervignetten mit Sesseln, Beistelltischen, Pflanzen, Stehlampen und Preisschildern, gemusterte Teppiche, Bodenabrieb sowie abwechslungsreichere Fliesen machen die fünf Abteilungen stärker wie ein Möbelhaus.
+
+Vorgeschlagener Commit: `fix: make showroom ramps traversable and add retail dressing`
